@@ -166,6 +166,13 @@ func doRequest(cli *http.Client, rawurl string, opts option) error {
 
 	defer resp.Body.Close()
 
+	if opts.Verbose {
+		log.Printf("%s %s", resp.Proto, resp.Status)
+		for k, vs := range resp.Header {
+			log.Printf("%s: %s", k, vs)
+		}
+	}
+
 	if _, err := io.Copy(os.Stdout, resp.Body); err != nil {
 		return fmt.Errorf("failed to copy body: %w", err)
 	}
@@ -180,6 +187,7 @@ type option struct {
 	TokenDir     string
 	Data         HTTPRequestBody
 	Header       HTTPHeader
+	Verbose      bool
 }
 
 type HTTPRequestBody struct {
@@ -248,6 +256,7 @@ func main() {
 		Profile:      "default",
 		ProfilesPath: profilesPath,
 		TokenDir:     tokenDir,
+		Verbose:      false,
 	}
 
 	flag.StringVar(&opts.Request, "request", opts.Request, "")
@@ -256,6 +265,7 @@ func main() {
 	flag.StringVar(&opts.TokenDir, "tokens", opts.TokenDir, "")
 	flag.Var(&opts.Data, "data", "")
 	flag.Var(&opts.Header, "header", "")
+	flag.BoolVar(&opts.Verbose, "verbose", opts.Verbose, "")
 	flag.Parse()
 
 	urls := flag.Args()
