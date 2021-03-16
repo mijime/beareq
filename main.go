@@ -285,6 +285,15 @@ func run(urls []string, opts option) error {
 	return saveToken(tokSrc, opts)
 }
 
+func osGetEnv(key string, defaultValue string) string {
+	val := os.Getenv(key)
+	if len(val) == 0 {
+		return defaultValue
+	}
+
+	return val
+}
+
 func main() {
 	profilesPath, _ := homedir.Expand("~/.config/go-oauth-curl/profiles.toml")
 	tokenDir, _ := homedir.Expand("~/.config/go-oauth-curl/tokens")
@@ -293,9 +302,9 @@ func main() {
 		Request:      "",
 		Header:       HTTPHeader{Values: make(map[string][]string)},
 		Data:         HTTPRequestBody{Reader: nil},
-		Profile:      "default",
-		ProfilesPath: profilesPath,
-		TokenDir:     tokenDir,
+		Profile:      osGetEnv("GO2CURL_PROFILE", "default"),
+		ProfilesPath: osGetEnv("GO2CURL_PROFILES_PATH", profilesPath),
+		TokenDir:     osGetEnv("GO2CURL_TOKENS_DIR", tokenDir),
 		Verbose:      false,
 	}
 
