@@ -38,12 +38,10 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 		return nil
 	}
 
-	u, err := url.Parse(config.RedirectURL)
+	redirectURL, err := url.Parse(config.RedirectURL)
 	if err != nil {
 		return fmt.Errorf("failed to parse redirect url: %w", err)
 	}
-
-	addr := u.Hostname() + ":" + u.Port()
 
 	if err := webbrowser.Open(authCodeURL); err != nil {
 		return fmt.Errorf("failed to open url: %w", err)
@@ -60,6 +58,8 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 		code <- q.Get("code")
 		w.WriteHeader(http.StatusAccepted)
 	})
+
+	addr := redirectURL.Hostname() + ":" + redirectURL.Port()
 
 	go func() {
 		err := http.ListenAndServe(addr, nil)
