@@ -167,6 +167,11 @@ func doRequest(cli *http.Client, rawurl string, opts option) error {
 	defer resp.Body.Close()
 
 	if opts.Verbose {
+		log.Printf("%s %s %s", resp.Request.Method, resp.Request.URL, resp.Request.Proto)
+		for k, vs := range resp.Request.Header {
+			log.Printf("%s: %s", k, vs)
+		}
+
 		log.Printf("%s %s", resp.Proto, resp.Status)
 		for k, vs := range resp.Header {
 			log.Printf("%s: %s", k, vs)
