@@ -155,7 +155,7 @@ func doRequest(cli *http.Client, rawurl string, opts option) error {
 		Header: opts.Header.Values,
 	}
 
-	if opts.Data.Reader != nil {
+	if opts.Data.Exists() {
 		req.Body = io.NopCloser(opts.Data)
 	}
 
@@ -192,6 +192,10 @@ type option struct {
 
 type HTTPRequestBody struct {
 	io.Reader
+}
+
+func (b *HTTPRequestBody) Exists() bool {
+	return b.Reader != nil
 }
 
 func (b *HTTPRequestBody) String() string {
@@ -235,7 +239,7 @@ func (h *HTTPHeader) Set(values string) error {
 		return nil
 	}
 
-	k, v := strings.Trim(vs[0], " "), strings.Trim(vs[1], " ")
+	k, v := strings.ToLower(strings.Trim(vs[0], " ")), strings.Trim(vs[1], " ")
 	if h.Values[k] == nil {
 		h.Values[k] = make([]string, 0)
 	}
@@ -250,7 +254,7 @@ func main() {
 	tokenDir, _ := homedir.Expand("~/.config/go-oauth-curl/tokens")
 
 	opts := option{
-		Request:      http.MethodGet,
+		Request:      "",
 		Header:       HTTPHeader{Values: make(map[string][]string)},
 		Data:         HTTPRequestBody{Reader: nil},
 		Profile:      "default",
@@ -267,6 +271,20 @@ func main() {
 	flag.Var(&opts.Header, "header", "")
 	flag.BoolVar(&opts.Verbose, "verbose", opts.Verbose, "")
 	flag.Parse()
+
+	if len(opts.Request) == 0 {
+		if opts.Data.Exists() {
+			opts.Request = http.MethodPost
+		} else {
+			opts.Request = http.MethodGet
+		}
+	}
+
+	if len(opts.Header.Values["content-type"]) == 0 && opts.Data.Exists() {
+		if err := opts.Header.Set("Content-type:application/x-www-form-urlencoded"); err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	urls := flag.Args()
 
