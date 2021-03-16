@@ -1,4 +1,4 @@
-## Configratuion
+## Configuration
 
 `~/.config/go-auth-curl/profiles.toml`
 
