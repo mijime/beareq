@@ -200,7 +200,7 @@ func (b *HTTPRequestBody) Set(value string) error {
 	if strings.HasPrefix(value, "@") {
 		var err error
 
-		b.Reader, err = os.Open(value)
+		b.Reader, err = os.Open(value[1:])
 		if err != nil {
 			return fmt.Errorf("failed to open request data: %w", err)
 		}
