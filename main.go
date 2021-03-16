@@ -88,7 +88,7 @@ func generateToken(config *oauth2.Config) (*oauth2.Token, error) {
 	return tok, nil
 }
 
-func saveToken(tok *oauth2.Token, opts option) error {
+func saveToken(tokSrc oauth2.TokenSource, opts option) error {
 	if err := os.MkdirAll(opts.TokenDir, 0700); err != nil {
 		return fmt.Errorf("failed to create token dir: %w", err)
 	}
@@ -100,7 +100,12 @@ func saveToken(tok *oauth2.Token, opts option) error {
 		return fmt.Errorf("failed to create token: %w", err)
 	}
 
-	if err := json.NewEncoder(tokwp).Encode(tok); err != nil {
+	newTok, err := tokSrc.Token()
+	if err != nil {
+		return fmt.Errorf("failed to create new token: %w", err)
+	}
+
+	if err := json.NewEncoder(tokwp).Encode(newTok); err != nil {
 		return fmt.Errorf("failed to encode token: %w", err)
 	}
 
@@ -168,11 +173,13 @@ func doRequest(cli *http.Client, rawurl string, opts option) error {
 
 	if opts.Verbose {
 		log.Printf("%s %s %s", resp.Request.Method, resp.Request.URL, resp.Request.Proto)
+
 		for k, vs := range resp.Request.Header {
 			log.Printf("%s: %s", k, vs)
 		}
 
 		log.Printf("%s %s", resp.Proto, resp.Status)
+
 		for k, vs := range resp.Header {
 			log.Printf("%s: %s", k, vs)
 		}
@@ -254,6 +261,30 @@ func (h *HTTPHeader) Set(values string) error {
 	return nil
 }
 
+func run(urls []string, opts option) error {
+	config, err := fetchConfig(opts)
+	if err != nil {
+		return err
+	}
+
+	tok, err := fetchToken(config, opts)
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	tokSrc := config.TokenSource(ctx, tok)
+	cli := oauth2.NewClient(ctx, tokSrc)
+
+	for _, rawurl := range urls {
+		if err := doRequest(cli, rawurl, opts); err != nil {
+			return err
+		}
+	}
+
+	return saveToken(tokSrc, opts)
+}
+
 func main() {
 	profilesPath, _ := homedir.Expand("~/.config/go-oauth-curl/profiles.toml")
 	tokenDir, _ := homedir.Expand("~/.config/go-oauth-curl/tokens")
@@ -293,32 +324,7 @@ func main() {
 
 	urls := flag.Args()
 
-	config, err := fetchConfig(opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tok, err := fetchToken(config, opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx := context.Background()
-	tokSrc := config.TokenSource(ctx, tok)
-	cli := oauth2.NewClient(ctx, tokSrc)
-
-	for _, rawurl := range urls {
-		if err := doRequest(cli, rawurl, opts); err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	newTok, err := tokSrc.Token()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := saveToken(newTok, opts); err != nil {
+	if err := run(urls, opts); err != nil {
 		log.Fatal(err)
 	}
 }
