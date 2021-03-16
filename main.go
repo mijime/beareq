@@ -299,7 +299,8 @@ func main() {
 	}
 
 	ctx := context.Background()
-	cli := config.Client(ctx, tok)
+	tokSrc := config.TokenSource(ctx, tok)
+	cli := oauth2.NewClient(ctx, tokSrc)
 
 	for _, rawurl := range urls {
 		if err := doRequest(cli, rawurl, opts); err != nil {
@@ -307,7 +308,12 @@ func main() {
 		}
 	}
 
-	if err := saveToken(tok, opts); err != nil {
+	newTok, err := tokSrc.Token()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := saveToken(newTok, opts); err != nil {
 		log.Fatal(err)
 	}
 }
