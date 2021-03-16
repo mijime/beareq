@@ -24,3 +24,10 @@ Scopes = ["chat:write:user", "chat:write:bot"]
 AuthURL = "https://slack.com/oauth/authorize"
 TokenURL = "https://slack.com/api/oauth.access"
 ```
+
+## Usage
+
+```bash
+go-oauth-curl --profile slack --header=Content-type:\ application/json \
+  --data='{"channel":"CXXXXX","text":"Helloworld"}' https://slack.com/api/chat.postMessage
+```
