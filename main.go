@@ -31,7 +31,7 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 	if config.RedirectURL == "urn:ietf:wg:oauth:2.0:oob" {
 		var c string
 
-		fmt.Fprint(os.Stderr, "Input Code:")
+		fmt.Fprint(os.Stderr, "Input Code: ")
 		fmt.Scan(&c)
 		code <- c
 
