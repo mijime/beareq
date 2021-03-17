@@ -8,7 +8,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func fetchProfile(opts option) (*oauth2.Config, error) {
+func fetchConfigByProfile(opts option) (*oauth2.Config, error) {
 	confp, err := os.Open(opts.ProfilesPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open oauth config: %w", err)

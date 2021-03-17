@@ -9,7 +9,7 @@ import (
 )
 
 func run(urls []string, opts option) error {
-	config, err := fetchProfile(opts)
+	config, err := fetchConfigByProfile(opts)
 	if err != nil {
 		return err
 	}
@@ -40,12 +40,13 @@ func main() {
 
 	flag.StringVar(&opts.Request, "request", opts.Request, "Specify request command to use")
 	flag.StringVar(&opts.Profile, "profile", opts.Profile, "")
-	flag.StringVar(&opts.ProfilesPath, "config", opts.ProfilesPath, "")
+	flag.StringVar(&opts.ProfilesPath, "profiles", opts.ProfilesPath, "")
 	flag.StringVar(&opts.TokenDir, "tokens", opts.TokenDir, "")
 	flag.Var(&opts.Data, "data", "HTTP POST data")
 	flag.Var(&opts.Header, "header", "Pass custom header(s) to server")
 	flag.BoolVar(&opts.Verbose, "verbose", opts.Verbose, "")
 	flag.BoolVar(&opts.Fail, "fail", opts.Fail, "Fail silently (no output at all) on HTTP errors")
+	flag.StringVar(&opts.CommandsPath, "commands", opts.CommandsPath, "")
 	flag.Parse()
 
 	urls := flag.Args()

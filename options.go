@@ -30,6 +30,7 @@ type option struct {
 	Header       httpRequestHeader
 	Verbose      bool
 	Fail         bool
+	CommandsPath string
 }
 
 func newOption() (option, error) {
@@ -41,6 +42,11 @@ func newOption() (option, error) {
 	tokenDir, err := homedir.Expand("~/.config/beareq/tokens")
 	if err != nil {
 		return option{}, fmt.Errorf("failed to expand token dir: %w", err)
+	}
+
+	commandsPath, err := homedir.Expand("~/.config/beareq/commands.toml")
+	if err != nil {
+		return option{}, fmt.Errorf("failed to expand command path: %w", err)
 	}
 
 	verbose, err := strconv.ParseBool(osGetEnv("BEAREQ_VERBOSE", "False"))
@@ -57,6 +63,7 @@ func newOption() (option, error) {
 		TokenDir:     osGetEnv("BEAREQ_TOKENS_DIR", tokenDir),
 		Verbose:      verbose,
 		Fail:         false,
+		CommandsPath: osGetEnv("BEAREQ_COMMANDS_PATH", commandsPath),
 	}, nil
 }
 
