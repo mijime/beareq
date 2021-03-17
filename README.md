@@ -28,6 +28,6 @@ TokenURL = "https://slack.com/api/oauth.access"
 ## Usage
 
 ```bash
-go-oauth-curl --profile slack --header=Content-type:\ application/json \
+beareq --profile slack --header=Content-type:\ application/json \
   --data='{"channel":"CXXXXX","text":"Helloworld"}' https://slack.com/api/chat.postMessage
 ```

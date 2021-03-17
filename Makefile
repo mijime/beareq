@@ -1,7 +1,7 @@
 
-build: dist/go-oauth-curl
+build: dist/beareq
 
-dist/go-oauth-curl:
+dist/beareq:
 	go build -o $@ ./...
 
 test:

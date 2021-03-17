@@ -33,17 +33,17 @@ type option struct {
 }
 
 func newOption() (option, error) {
-	profilesPath, err := homedir.Expand("~/.config/go-oauth-curl/profiles.toml")
+	profilesPath, err := homedir.Expand("~/.config/beareq/profiles.toml")
 	if err != nil {
 		return option{}, fmt.Errorf("failed to expand profile path: %w", err)
 	}
 
-	tokenDir, err := homedir.Expand("~/.config/go-oauth-curl/tokens")
+	tokenDir, err := homedir.Expand("~/.config/beareq/tokens")
 	if err != nil {
 		return option{}, fmt.Errorf("failed to expand token dir: %w", err)
 	}
 
-	verbose, err := strconv.ParseBool(osGetEnv("GO2CURL_VERBOSE", "False"))
+	verbose, err := strconv.ParseBool(osGetEnv("BEAREQ_VERBOSE", "False"))
 	if err != nil {
 		return option{}, fmt.Errorf("failed to parse verbose flag: %w", err)
 	}
@@ -52,9 +52,9 @@ func newOption() (option, error) {
 		Request:      "",
 		Header:       httpRequestHeader{Values: make(http.Header)},
 		Data:         httpRequestBody{Reader: nil},
-		Profile:      osGetEnv("GO2CURL_PROFILE", "default"),
-		ProfilesPath: osGetEnv("GO2CURL_PROFILES_PATH", profilesPath),
-		TokenDir:     osGetEnv("GO2CURL_TOKENS_DIR", tokenDir),
+		Profile:      osGetEnv("BEAREQ_PROFILE", "default"),
+		ProfilesPath: osGetEnv("BEAREQ_PROFILES_PATH", profilesPath),
+		TokenDir:     osGetEnv("BEAREQ_TOKENS_DIR", tokenDir),
 		Verbose:      verbose,
 		Fail:         false,
 	}, nil

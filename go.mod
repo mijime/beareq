@@ -1,4 +1,4 @@
-module github.com/mijime/go-oauth-curl
+module github.com/mijime/beareq
 
 go 1.16
 
