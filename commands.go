@@ -33,9 +33,14 @@ func (cc *commandsConfig) Create(u *url.URL, opts option) (*http.Request, error)
 		return nil, fmt.Errorf("failed to parse command url: %w", err)
 	}
 
+	method := cc.Method
+	if len(opts.Request) > 0 {
+		method = opts.Request
+	}
+
 	req := &http.Request{
 		URL:    reqURL,
-		Method: cc.Method,
+		Method: method,
 		Header: opts.Header.Values,
 	}
 
