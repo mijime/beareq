@@ -90,7 +90,7 @@ func generateToken(config *oauth2.Config) (*oauth2.Token, error) {
 }
 
 func saveToken(tokSrc oauth2.TokenSource, opts option) error {
-	if err := os.MkdirAll(opts.TokenDir, 0700); err != nil {
+	if err := os.MkdirAll(opts.TokenDir, 0o700); err != nil {
 		return fmt.Errorf("failed to create token dir: %w", err)
 	}
 
@@ -228,12 +228,12 @@ func (b *HTTPRequestBody) Set(value string) error {
 	}
 
 	if strings.HasPrefix(value, "@") {
-		var err error
-
-		b.Reader, err = os.Open(value[1:])
+		rfp, err := os.Open(value[1:])
 		if err != nil {
 			return fmt.Errorf("failed to open request data: %w", err)
 		}
+
+		b.Reader = rfp
 
 		return nil
 	}
