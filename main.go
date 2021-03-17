@@ -204,7 +204,7 @@ type option struct {
 	ProfilesPath string
 	TokenDir     string
 	Data         HTTPRequestBody
-	Header       HTTPHeader
+	Header       HTTPRequestHeader
 	Verbose      bool
 	Fail         bool
 }
@@ -244,15 +244,15 @@ func (b *HTTPRequestBody) Set(value string) error {
 	return nil
 }
 
-type HTTPHeader struct {
+type HTTPRequestHeader struct {
 	Values map[string][]string
 }
 
-func (h *HTTPHeader) String() string {
+func (h *HTTPRequestHeader) String() string {
 	return ""
 }
 
-func (h *HTTPHeader) Add(k, v string) {
+func (h *HTTPRequestHeader) Add(k, v string) {
 	k, v = strings.ToLower(strings.Trim(k, " ")), strings.Trim(v, " ")
 
 	if h.Values[k] == nil {
@@ -262,7 +262,7 @@ func (h *HTTPHeader) Add(k, v string) {
 	h.Values[k] = append(h.Values[k], v)
 }
 
-func (h *HTTPHeader) Set(values string) error {
+func (h *HTTPRequestHeader) Set(values string) error {
 	if strings.HasPrefix(values, "@") {
 		rfp, err := os.Open(values[1:])
 		if err != nil {
@@ -329,7 +329,7 @@ func main() {
 
 	opts := option{
 		Request:      "",
-		Header:       HTTPHeader{Values: make(map[string][]string)},
+		Header:       HTTPRequestHeader{Values: make(map[string][]string)},
 		Data:         HTTPRequestBody{Reader: nil},
 		Profile:      osGetEnv("GO2CURL_PROFILE", "default"),
 		ProfilesPath: osGetEnv("GO2CURL_PROFILES_PATH", profilesPath),
