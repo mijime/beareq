@@ -338,14 +338,14 @@ func main() {
 		Fail:         false,
 	}
 
-	flag.StringVar(&opts.Request, "request", opts.Request, "")
+	flag.StringVar(&opts.Request, "request", opts.Request, "Specify request command to use")
 	flag.StringVar(&opts.Profile, "profile", opts.Profile, "")
 	flag.StringVar(&opts.ProfilesPath, "config", opts.ProfilesPath, "")
 	flag.StringVar(&opts.TokenDir, "tokens", opts.TokenDir, "")
-	flag.Var(&opts.Data, "data", "")
-	flag.Var(&opts.Header, "header", "")
+	flag.Var(&opts.Data, "data", "HTTP POST data")
+	flag.Var(&opts.Header, "header", "Pass custom header(s) to server")
 	flag.BoolVar(&opts.Verbose, "verbose", opts.Verbose, "")
-	flag.BoolVar(&opts.Fail, "fail", opts.Fail, "")
+	flag.BoolVar(&opts.Fail, "fail", opts.Fail, "Fail silently (no output at all) on HTTP errors")
 	flag.Parse()
 
 	if len(opts.Request) == 0 {
