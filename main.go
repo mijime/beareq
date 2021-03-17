@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -251,18 +252,39 @@ func (h *HTTPHeader) String() string {
 	return ""
 }
 
-func (h *HTTPHeader) Set(values string) error {
-	vs := strings.SplitN(values, ":", 2)
-	if len(vs[0]) == 0 {
-		return nil
-	}
+func (h *HTTPHeader) Add(k, v string) {
+	k, v = strings.ToLower(strings.Trim(k, " ")), strings.Trim(v, " ")
 
-	k, v := strings.ToLower(strings.Trim(vs[0], " ")), strings.Trim(vs[1], " ")
 	if h.Values[k] == nil {
 		h.Values[k] = make([]string, 0)
 	}
 
 	h.Values[k] = append(h.Values[k], v)
+}
+
+func (h *HTTPHeader) Set(values string) error {
+	if strings.HasPrefix(values, "@") {
+		rfp, err := os.Open(values[1:])
+		if err != nil {
+			return fmt.Errorf("failed to open request header: %w", err)
+		}
+
+		sc := bufio.NewScanner(rfp)
+		for sc.Scan() {
+			if err := h.Set(sc.Text()); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	vs := strings.SplitN(values, ":", 2)
+	if len(vs[0]) == 0 {
+		return nil
+	}
+
+	h.Add(vs[0], vs[1])
 
 	return nil
 }
