@@ -185,6 +185,10 @@ func doRequest(cli *http.Client, rawurl string, opts option) error {
 		}
 	}
 
+	if opts.Fail && resp.StatusCode >= http.StatusBadRequest {
+		return fmt.Errorf("failed to request: %w", errors.New(resp.Status))
+	}
+
 	if _, err := io.Copy(os.Stdout, resp.Body); err != nil {
 		return fmt.Errorf("failed to copy body: %w", err)
 	}
@@ -200,6 +204,7 @@ type option struct {
 	Data         HTTPRequestBody
 	Header       HTTPHeader
 	Verbose      bool
+	Fail         bool
 }
 
 type HTTPRequestBody struct {
@@ -306,6 +311,7 @@ func main() {
 		ProfilesPath: osGetEnv("GO2CURL_PROFILES_PATH", profilesPath),
 		TokenDir:     osGetEnv("GO2CURL_TOKENS_DIR", tokenDir),
 		Verbose:      false,
+		Fail:         false,
 	}
 
 	flag.StringVar(&opts.Request, "request", opts.Request, "")
@@ -315,6 +321,7 @@ func main() {
 	flag.Var(&opts.Data, "data", "")
 	flag.Var(&opts.Header, "header", "")
 	flag.BoolVar(&opts.Verbose, "verbose", opts.Verbose, "")
+	flag.BoolVar(&opts.Fail, "fail", opts.Fail, "")
 	flag.Parse()
 
 	if len(opts.Request) == 0 {
