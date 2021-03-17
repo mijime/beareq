@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -302,6 +303,7 @@ func osGetEnv(key string, defaultValue string) string {
 func main() {
 	profilesPath, _ := homedir.Expand("~/.config/go-oauth-curl/profiles.toml")
 	tokenDir, _ := homedir.Expand("~/.config/go-oauth-curl/tokens")
+	verbose, _ := strconv.ParseBool(osGetEnv("GO2CURL_VERBOSE", "False"))
 
 	opts := option{
 		Request:      "",
@@ -310,7 +312,7 @@ func main() {
 		Profile:      osGetEnv("GO2CURL_PROFILE", "default"),
 		ProfilesPath: osGetEnv("GO2CURL_PROFILES_PATH", profilesPath),
 		TokenDir:     osGetEnv("GO2CURL_TOKENS_DIR", tokenDir),
-		Verbose:      false,
+		Verbose:      verbose,
 		Fail:         false,
 	}
 
