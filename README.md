@@ -1,3 +1,5 @@
+![](docs/assets/logo.png)
+
 ## Configuration
 
 `~/.config/go-auth-curl/profiles.toml`
