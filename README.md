@@ -2,7 +2,7 @@
 
 ## Configuration
 
-`~/.config/go-auth-curl/profiles.toml`
+`~/.config/beareq/profiles.toml`
 
 ```toml
 [google]
