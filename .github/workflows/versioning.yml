@@ -3,7 +3,7 @@ name: versioning
 
 on:
   push:
-    tags:
+    branches:
       - main
 
 jobs:
