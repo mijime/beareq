@@ -8,8 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 func osGetEnv(key string, defaultValue string) string {
@@ -34,21 +32,9 @@ type option struct {
 }
 
 func newOption() (option, error) {
-	profilesPath, err := homedir.Expand("~/.config/beareq/profiles.toml")
-	if err != nil {
-		return option{}, fmt.Errorf("failed to expand profile path: %w", err)
-	}
-
-	tokenDir, err := homedir.Expand("~/.config/beareq/tokens")
-	if err != nil {
-		return option{}, fmt.Errorf("failed to expand token dir: %w", err)
-	}
-
-	commandsPath, err := homedir.Expand("~/.config/beareq/commands.toml")
-	if err != nil {
-		return option{}, fmt.Errorf("failed to expand command path: %w", err)
-	}
-
+	profilesPath := os.Getenv("HOME") + "/.config/beareq/profiles.toml"
+	tokenDir := os.Getenv("HOME") + "/.config/beareq/tokens"
+	commandsPath := os.Getenv("HOME") + "/.config/beareq/commands.toml"
 	verbose, err := strconv.ParseBool(osGetEnv("BEAREQ_VERBOSE", "False"))
 	if err != nil {
 		return option{}, fmt.Errorf("failed to parse verbose flag: %w", err)
