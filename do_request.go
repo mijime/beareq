@@ -57,39 +57,13 @@ func createRequest(u *url.URL, opts option) *http.Request {
 	return req
 }
 
-func matchCommand(cc commandsConfigs, u *url.URL) *commandsConfig {
-	if cc[u.Scheme] == nil {
-		return nil
-	}
-
-	if cc[u.Scheme][u.Hostname()] == nil {
-		return nil
-	}
-
-	return cc[u.Scheme][u.Hostname()]
-}
-
 func doRequest(cli *http.Client, rawurl string, opts option) error {
 	u, err := url.Parse(rawurl)
 	if err != nil {
 		return fmt.Errorf("failed to parse url: %w", err)
 	}
 
-	cmds, err := fetchCommands(opts)
-	if err != nil {
-		return err
-	}
-
-	var req *http.Request
-
-	if cmd := matchCommand(cmds, u); cmd != nil {
-		req, err = cmd.Create(u, opts)
-		if err != nil {
-			return err
-		}
-	} else {
-		req = createRequest(u, opts)
-	}
+	req := createRequest(u, opts)
 
 	resp, err := cli.Do(req)
 	if err != nil {

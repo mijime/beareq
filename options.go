@@ -28,13 +28,11 @@ type option struct {
 	Header       httpRequestHeader
 	Verbose      bool
 	Fail         bool
-	CommandsPath string
 }
 
 func newOption() (option, error) {
 	profilesPath := os.Getenv("HOME") + "/.config/beareq/profiles.toml"
 	tokenDir := os.Getenv("HOME") + "/.config/beareq/tokens"
-	commandsPath := os.Getenv("HOME") + "/.config/beareq/commands.toml"
 	verbose, err := strconv.ParseBool(osGetEnv("BEAREQ_VERBOSE", "False"))
 	if err != nil {
 		return option{}, fmt.Errorf("failed to parse verbose flag: %w", err)
@@ -49,7 +47,6 @@ func newOption() (option, error) {
 		TokenDir:     osGetEnv("BEAREQ_TOKENS_DIR", tokenDir),
 		Verbose:      verbose,
 		Fail:         false,
-		CommandsPath: osGetEnv("BEAREQ_COMMANDS_PATH", commandsPath),
 	}, nil
 }
 
