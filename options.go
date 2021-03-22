@@ -33,6 +33,7 @@ type option struct {
 func newOption() (option, error) {
 	profilesPath := os.Getenv("HOME") + "/.config/beareq/profiles.toml"
 	tokenDir := os.Getenv("HOME") + "/.config/beareq/tokens"
+
 	verbose, err := strconv.ParseBool(osGetEnv("BEAREQ_VERBOSE", "False"))
 	if err != nil {
 		return option{}, fmt.Errorf("failed to parse verbose flag: %w", err)
