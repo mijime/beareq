@@ -46,7 +46,6 @@ func main() {
 	flag.Var(&opts.Header, "header", "Pass custom header(s) to server")
 	flag.BoolVar(&opts.Verbose, "verbose", opts.Verbose, "")
 	flag.BoolVar(&opts.Fail, "fail", opts.Fail, "Fail silently (no output at all) on HTTP errors")
-	flag.StringVar(&opts.CommandsPath, "commands", opts.CommandsPath, "")
 	flag.Parse()
 
 	urls := flag.Args()
