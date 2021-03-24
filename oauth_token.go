@@ -16,6 +16,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var errInvalidAuthCodeURL = errors.New("invalid auth code url")
+
 func fetchCode(code chan<- string, config *oauth2.Config) error {
 	id := uuid.New()
 	state := fmt.Sprint(id)
@@ -36,6 +38,10 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 	redirectURL, err := url.Parse(config.RedirectURL)
 	if err != nil {
 		return fmt.Errorf("failed to parse redirect url: %w", err)
+	}
+
+	if redirectURL.Scheme == "" {
+		return errInvalidAuthCodeURL
 	}
 
 	if err := webbrowser.Open(authCodeURL); err != nil {
@@ -70,6 +76,8 @@ func generateToken(config *oauth2.Config) (*oauth2.Token, error) {
 	code := make(chan string, 1)
 
 	if err := fetchCode(code, config); err != nil {
+		close(code)
+
 		return nil, err
 	}
 
