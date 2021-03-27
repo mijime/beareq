@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/pelletier/go-toml v1.8.1
 	github.com/toqueteos/webbrowser v1.2.0
-	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
-	golang.org/x/oauth2 v0.0.0-20210313182246-cd4f82c27b84
+	golang.org/x/net v0.0.0-20210326220855-61e056675ecf // indirect
+	golang.org/x/oauth2 v0.0.0-20210323180902-22b0adad7558
 	google.golang.org/appengine v1.6.7 // indirect
 )
