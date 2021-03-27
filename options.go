@@ -64,7 +64,7 @@ func (b *httpRequestBody) String() string {
 }
 
 func (b *httpRequestBody) Set(value string) error {
-	if value == "-" {
+	if value == "@-" {
 		b.Reader = os.Stdin
 
 		return nil
