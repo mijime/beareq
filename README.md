@@ -25,11 +25,38 @@ Scopes = ["chat:write:user", "chat:write:bot"]
 [slack.Endpoint]
 AuthURL = "https://slack.com/oauth/authorize"
 TokenURL = "https://slack.com/api/oauth.access"
+
+# OPTIONAL
+[[slack.OpenAPI]]
+BaseURL = "https://api.slack.com/api"
+Specs = [
+  "/Users/xxx/.config/beareq/specs/slack.json"
+]
 ```
 
 ## Usage
 
 ```bash
-beareq --profile slack --header=Content-type:\ application/json \
-  --data='{"channel":"CXXXXX","text":"Helloworld"}' https://slack.com/api/chat.postMessage
+beareq \
+	--profile slack \
+	--header=Content-type:\ application/json \
+	--data='{"channel":"CXXXXX","text":"Helloworld"}' \
+	https://slack.com/api/chat.postMessage
+```
+
+```bash
+beareq \
+	--profile slack \
+	--header=Content-type:\ application/json \
+	--jo channel=CXXXXX \
+	--jo text=Helloworld \
+	https://slack.com/api/chat.postMessage
+```
+
+```bash
+beareq-oapi \
+	--profile slack \
+	chat_postMessage \
+	--channel CXXXXX \
+	--text "Helloworld"
 ```

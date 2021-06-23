@@ -30,6 +30,7 @@ func main() {
 	flag.Var(&rh.JSONQuery, "jq", "")
 	flag.BoolVar(&rh.Verbose, "verbose", rh.Verbose, "")
 	flag.BoolVar(&rh.Fail, "fail", rh.Fail, "Fail silently (no output at all) on HTTP errors")
+
 	flag.Parse()
 
 	ctx := context.Background()

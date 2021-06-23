@@ -3,7 +3,16 @@ tests = false
 
 [linters]
 enable-all = true
-disable = ["exhaustivestruct", "goerr113"]
+disable = [
+  "maligned",
+  "scopelint",
+  "golint",
+  "interfacer",
+
+  "exhaustivestruct",
+  "gomnd",
+  "goerr113",
+]
 
 [linters-settings.gocognit]
 min-complexity = 10

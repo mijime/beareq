@@ -56,6 +56,8 @@ func (b *ClientBuilder) fetchConfigByProfile() (*oauth2.Config, error) {
 		return nil, fmt.Errorf("failed to open oauth config: %w", err)
 	}
 
+	defer confp.Close()
+
 	config := make(map[string]oauth2.Config)
 	if err := toml.NewDecoder(confp).Decode(&config); err != nil {
 		return nil, fmt.Errorf("failed to decode oauth config: %w", err)
