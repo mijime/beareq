@@ -83,18 +83,41 @@ func main() {
 
 	cmd, ok := cmds[args[0]]
 	if !ok {
-		minD := -1
-		suggestCmdName := ""
+		cmdNames := make([]struct {
+			n string
+			d int
+		}, 0, len(cmds))
 
 		for cmdName := range cmds {
-			d := levenshtein.ComputeDistance(args[0], cmdName)
-			if minD < 0 || d < minD {
-				minD = d
-				suggestCmdName = cmdName
+			var d int
+
+			if len(cmdName) > len(args[0]) {
+				d = levenshtein.ComputeDistance(args[0], cmdName[:len(args[0])])*10 + levenshtein.ComputeDistance(args[0], cmdName[len(args[0]):])
+			} else {
+				d = levenshtein.ComputeDistance(args[0], cmdName) * 10
 			}
+
+			cmdNames = append(cmdNames, struct {
+				n string
+				d int
+			}{n: cmdName, d: d})
 		}
 
-		log.Fatalf("unsupported command: %s. the most similar command is %s", args[0], suggestCmdName)
+		sort.Slice(cmdNames, func(i, j int) bool {
+			return cmdNames[i].d < cmdNames[j].d
+		})
+
+		viewSize := len(cmdNames)
+		if viewSize > 5 {
+			viewSize = 5
+		}
+
+		fmt.Fprintf(os.Stderr, "unsupported subcommand %s: the more similar command is\n", args[0])
+		for _, cmdName := range cmdNames[:viewSize] {
+			fmt.Fprintf(os.Stderr, "\t- %s\n", cmdName.n)
+		}
+
+		os.Exit(1)
 	}
 
 	if err := cmd.Parse(envPrefix, args[1:]); err != nil {
