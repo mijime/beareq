@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -15,35 +16,58 @@ import (
 )
 
 type Operation struct {
-	*flag.FlagSet
-	BaseURL   string
-	Path      string
-	Method    string
+	BaseURL string
+	Path    string
+	Method  string
+
+	*openapi3.Operation
 	Variables map[string]map[string]*string
 }
 
 func NewOperation(url, path, method string, op *openapi3.Operation) *Operation {
-	fs := flag.NewFlagSet(op.OperationID, flag.ExitOnError)
-
-	variables := make(map[string]map[string]*string)
-
-	for _, prm := range op.Parameters {
-		argName := strcase.ToKebab(prm.Value.Name)
-
-		if _, ok := variables[prm.Value.In]; !ok {
-			variables[prm.Value.In] = make(map[string]*string)
-		}
-
-		variables[prm.Value.In][prm.Value.Name] = fs.String(argName, "", prm.Value.Description)
-	}
-
 	return &Operation{
 		BaseURL:   url,
 		Path:      path,
 		Method:    method,
-		FlagSet:   fs,
-		Variables: variables,
+		Operation: op,
+
+		Variables: make(map[string]map[string]*string),
 	}
+}
+
+func (op *Operation) Name() string {
+	return op.OperationID
+}
+
+func (op *Operation) Parse(envPrefix string, args []string) error {
+	fs := flag.NewFlagSet(op.Name(), flag.ExitOnError)
+
+	for _, prm := range op.Parameters {
+		argName := strcase.ToKebab(prm.Value.Name)
+
+		if _, ok := op.Variables[prm.Value.In]; !ok {
+			op.Variables[prm.Value.In] = make(map[string]*string)
+		}
+
+		var defaultVal string
+
+		for _, v := range []string{
+			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + argName))),
+			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + argName))),
+		} {
+			if len(v) > 0 {
+				defaultVal = v
+			}
+		}
+
+		op.Variables[prm.Value.In][prm.Value.Name] = fs.String(argName, defaultVal, prm.Value.Description)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		return fmt.Errorf("failed to parse args: %w", err)
+	}
+
+	return nil
 }
 
 func (cmd *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Request, error) {

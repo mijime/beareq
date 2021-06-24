@@ -28,7 +28,15 @@ func main() {
 	flag.BoolVar(&rh.Verbose, "verbose", rh.Verbose, "")
 	flag.BoolVar(&rh.Fail, "fail", rh.Fail, "Fail silently (no output at all) on HTTP errors")
 
+	var envPrefix string
+
+	flag.StringVar(&envPrefix, "env-prefix", "", "")
+
 	flag.Parse()
+
+	if len(envPrefix) == 0 {
+		envPrefix = "BEAREQ_OAPI_" + cb.Profile
+	}
 
 	config, err := fetchConfigByProfile(profileConfig{
 		ProfilesPath: cb.ProfilesPath,
@@ -97,7 +105,7 @@ func main() {
 		log.Fatalf("unsupported command: %s. the most similar command is %s", args[0], suggestCmdName)
 	}
 
-	if err := cmd.Parse(args[1:]); err != nil {
+	if err := cmd.Parse(envPrefix, args[1:]); err != nil {
 		log.Fatal(err)
 	}
 
