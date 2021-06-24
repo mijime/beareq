@@ -1,13 +1,16 @@
 package openapi
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -62,6 +65,35 @@ func (op *Operation) Parse(envPrefix string, args []string) error {
 		op.args[prm.Value.In][prm.Value.Name] = fs.String(argName, defaultVal, prm.Value.Description)
 	}
 
+	if op.RequestBody != nil {
+		for mimeName, schemas := range op.RequestBody.Value.Content {
+			op.args[mimeName] = make(map[string]*string)
+
+			for name, prm := range schemas.Schema.Value.Properties {
+				var defaultVal string
+
+				for _, v := range []string{
+					os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_body_" + name))),
+					os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_body_" + name))),
+				} {
+					if len(v) > 0 {
+						defaultVal = v
+					}
+				}
+
+				switch prm.Value.Type {
+				case "integer":
+					op.args[mimeName][name] = fs.String(strcase.ToKebab("body."+name), defaultVal, prm.Value.Description)
+				case "boolean":
+					op.args[mimeName][name] = fs.String(strcase.ToKebab("body."+name), defaultVal, prm.Value.Description)
+				case "string":
+					op.args[mimeName][name] = fs.String(strcase.ToKebab("body."+name), defaultVal, prm.Value.Description)
+				default:
+				}
+			}
+		}
+	}
+
 	if err := fs.Parse(args); err != nil {
 		return fmt.Errorf("failed to parse args: %w", err)
 	}
@@ -95,8 +127,45 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 	}
 
 	var requestBody io.Reader
+
 	if op.RequestBody != nil {
-		requestBody = os.Stdin
+		requestBodyMap := make(map[string]interface{})
+
+		for mimeName, schemas := range op.RequestBody.Value.Content {
+			for name, prm := range schemas.Schema.Value.Properties {
+				rawv, ok := op.args[mimeName][name]
+				if !ok || rawv == nil || len(*rawv) == 0 {
+					continue
+				}
+
+				switch prm.Value.Type {
+				case "integer":
+					v, _ := strconv.Atoi(*rawv)
+					requestBodyMap[name] = v
+				case "boolean":
+					v, _ := strconv.ParseBool(*rawv)
+					requestBodyMap[name] = v
+				case "string":
+					requestBodyMap[name] = *rawv
+				default:
+				}
+			}
+
+			if len(requestBodyMap) == 0 {
+				continue
+			}
+
+			buf, err := json.Marshal(requestBodyMap)
+			if err != nil {
+				return nil, fmt.Errorf("failed to marshal request body: %w", err)
+			}
+
+			header.Add("Content-type", mimeName)
+
+			requestBody = bytes.NewBuffer(buf)
+
+			break
+		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, op.Method, baseURI+path, requestBody)
@@ -125,9 +194,9 @@ func GenerateOperation(baseURL string, specPath string) (map[string]*Operation, 
 		return nil, fmt.Errorf("failed to parse spec path: %w", err)
 	}
 
-	loader := openapi3.NewLoader()
+	loader3 := openapi3.NewLoader()
 
-	doc3, err := loader.LoadFromURI(uri)
+	doc3, err := loader3.LoadFromURI(uri)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load openapi v3: %w", err)
 	}
