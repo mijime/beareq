@@ -166,6 +166,10 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 
 			break
 		}
+
+		if requestBody == nil {
+			requestBody = os.Stdin
+		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, op.Method, baseURI+path, requestBody)
