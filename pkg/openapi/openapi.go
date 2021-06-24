@@ -115,6 +115,12 @@ func GenerateOperation(baseURL string, openapiJSON io.Reader) (map[string]*Opera
 		return nil, fmt.Errorf("failed to decode openapi v3: %w", err)
 	}
 
+	for _, v := range doc3.Servers {
+		if len(baseURL) == 0 {
+			baseURL = v.URL
+		}
+	}
+
 	for path, v := range doc3.Paths {
 		for method, op := range v.Operations() {
 			cmd := NewOperation(baseURL, path, method, op)

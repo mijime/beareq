@@ -26,12 +26,9 @@ Scopes = ["chat:write:user", "chat:write:bot"]
 AuthURL = "https://slack.com/oauth/authorize"
 TokenURL = "https://slack.com/api/oauth.access"
 
-# OPTIONAL
-[[slack.OpenAPI]]
-BaseURL = "https://api.slack.com/api"
-Specs = [
-  "/Users/xxx/.config/beareq/specs/slack.json"
-]
+[[slack.OpenAPI]] # OPTIONAL
+BaseURL = "https://api.slack.com/api" # OPTIONAL
+Specs = ["/Users/xxx/.config/beareq/specs/slack.json"]
 ```
 
 ## Usage
