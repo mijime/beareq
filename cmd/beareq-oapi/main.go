@@ -50,18 +50,10 @@ func main() {
 
 	for _, oc := range config.OpenAPI {
 		for _, specPath := range oc.Specs {
-			fp, err := os.Open(specPath)
+			subcmds, err := openapi.GenerateOperation(oc.BaseURL, specPath)
 			if err != nil {
-				log.Fatal(fmt.Errorf("failed to open openapi spec: %w", err))
-			}
-
-			subcmds, err := openapi.GenerateOperation(oc.BaseURL, fp)
-			if err != nil {
-				fp.Close()
 				log.Fatal(fmt.Errorf("failed to generate openapi: %w", err))
 			}
-
-			fp.Close()
 
 			for cmdName, cmd := range subcmds {
 				cmds[cmdName] = cmd

@@ -2,7 +2,6 @@ package openapi
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -16,22 +15,23 @@ import (
 )
 
 type Operation struct {
+	*openapi3.Operation
+
 	BaseURL string
 	Path    string
 	Method  string
 
-	*openapi3.Operation
-	Variables map[string]map[string]*string
+	args map[string]map[string]*string
 }
 
 func NewOperation(url, path, method string, op *openapi3.Operation) *Operation {
 	return &Operation{
+		Operation: op,
 		BaseURL:   url,
 		Path:      path,
 		Method:    method,
-		Operation: op,
 
-		Variables: make(map[string]map[string]*string),
+		args: make(map[string]map[string]*string),
 	}
 }
 
@@ -43,24 +43,23 @@ func (op *Operation) Parse(envPrefix string, args []string) error {
 	fs := flag.NewFlagSet(op.Name(), flag.ExitOnError)
 
 	for _, prm := range op.Parameters {
-		argName := strcase.ToKebab(prm.Value.Name)
-
-		if _, ok := op.Variables[prm.Value.In]; !ok {
-			op.Variables[prm.Value.In] = make(map[string]*string)
+		if _, ok := op.args[prm.Value.In]; !ok {
+			op.args[prm.Value.In] = make(map[string]*string)
 		}
 
 		var defaultVal string
 
 		for _, v := range []string{
-			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + argName))),
-			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + argName))),
+			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + prm.Value.Name))),
+			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + prm.Value.Name))),
 		} {
 			if len(v) > 0 {
 				defaultVal = v
 			}
 		}
 
-		op.Variables[prm.Value.In][prm.Value.Name] = fs.String(argName, defaultVal, prm.Value.Description)
+		argName := strcase.ToKebab(prm.Value.Name)
+		op.args[prm.Value.In][prm.Value.Name] = fs.String(argName, defaultVal, prm.Value.Description)
 	}
 
 	if err := fs.Parse(args); err != nil {
@@ -70,58 +69,47 @@ func (op *Operation) Parse(envPrefix string, args []string) error {
 	return nil
 }
 
-func (cmd *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Request, error) {
-	p := cmd.Path
+func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Request, error) {
+	path := op.Path
+	query := make(url.Values)
+	header := make(http.Header)
+	formData := make(url.Values)
 
-	for k, v := range cmd.Variables["path"] {
-		if v == nil || len(*v) == 0 {
+	for _, prm := range op.Parameters {
+		v, ok := op.args[prm.Value.In][prm.Value.Name]
+		if !ok || v == nil || len(*v) == 0 {
 			continue
 		}
 
-		p = strings.ReplaceAll(p, "{"+k+"}", *v)
+		switch prm.Value.In {
+		case "path":
+			path = strings.ReplaceAll(path, "{"+prm.Value.Name+"}", *v)
+		case "query":
+			query.Add(prm.Value.Name, *v)
+		case "header":
+			header.Add(prm.Value.Name, *v)
+		case "formData":
+			formData.Add(prm.Value.Name, *v)
+		default:
+		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, cmd.Method, baseURI+p, nil)
+	var requestBody io.Reader
+	if op.RequestBody != nil {
+		requestBody = os.Stdin
+	}
+
+	req, err := http.NewRequestWithContext(ctx, op.Method, baseURI+path, requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	if m, ok := cmd.Variables["header"]; !ok {
-		for k, v := range m {
-			if v == nil || len(*v) == 0 {
-				continue
-			}
-
-			req.Header.Add(k, *v)
-		}
+	if len(header) > 0 {
+		req.Header = header
 	}
 
-	body := make(url.Values)
-
-	if m, ok := cmd.Variables["formData"]; !ok {
-		for k, v := range m {
-			if v == nil || len(*v) == 0 {
-				continue
-			}
-
-			body.Add(k, *v)
-		}
-	}
-
-	if len(body) > 0 {
-		req.PostForm = body
-	}
-
-	query := make(url.Values)
-
-	if m, ok := cmd.Variables["query"]; !ok {
-		for k, v := range m {
-			if v == nil || len(*v) == 0 {
-				continue
-			}
-
-			query.Add(k, *v)
-		}
+	if len(formData) > 0 {
+		req.PostForm = formData
 	}
 
 	if len(query) > 0 {
@@ -131,12 +119,17 @@ func (cmd *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.R
 	return req, nil
 }
 
-func GenerateOperation(baseURL string, openapiJSON io.Reader) (map[string]*Operation, error) {
-	cmds := make(map[string]*Operation)
+func GenerateOperation(baseURL string, specPath string) (map[string]*Operation, error) {
+	uri, err := url.Parse(specPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse spec path: %w", err)
+	}
 
-	var doc3 openapi3.T
-	if err := json.NewDecoder(openapiJSON).Decode(&doc3); err != nil {
-		return nil, fmt.Errorf("failed to decode openapi v3: %w", err)
+	loader := openapi3.NewLoader()
+
+	doc3, err := loader.LoadFromURI(uri)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load openapi v3: %w", err)
 	}
 
 	for _, v := range doc3.Servers {
@@ -144,6 +137,8 @@ func GenerateOperation(baseURL string, openapiJSON io.Reader) (map[string]*Opera
 			baseURL = v.URL
 		}
 	}
+
+	cmds := make(map[string]*Operation)
 
 	for path, v := range doc3.Paths {
 		for method, op := range v.Operations() {
