@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/agnivade/levenshtein v1.1.1
-	github.com/getkin/kin-openapi v0.64.0
+	github.com/getkin/kin-openapi v0.65.0
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.2.0
