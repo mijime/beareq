@@ -73,8 +73,8 @@ func (op *Operation) Parse(envPrefix string, args []string) error {
 				var defaultVal string
 
 				for _, v := range []string{
-					os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_body_" + name))),
-					os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_body_" + name))),
+					os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_BODY_" + name))),
+					os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_BODY_" + name))),
 				} {
 					if len(v) > 0 {
 						defaultVal = v
@@ -83,11 +83,11 @@ func (op *Operation) Parse(envPrefix string, args []string) error {
 
 				switch prm.Value.Type {
 				case "integer":
-					op.args[mimeName][name] = fs.String(strcase.ToKebab("body."+name), defaultVal, prm.Value.Description)
+					op.args[mimeName][name] = fs.String(strcase.ToKebab("body-"+name), defaultVal, prm.Value.Description)
 				case "boolean":
-					op.args[mimeName][name] = fs.String(strcase.ToKebab("body."+name), defaultVal, prm.Value.Description)
+					op.args[mimeName][name] = fs.String(strcase.ToKebab("body-"+name), defaultVal, prm.Value.Description)
 				case "string":
-					op.args[mimeName][name] = fs.String(strcase.ToKebab("body."+name), defaultVal, prm.Value.Description)
+					op.args[mimeName][name] = fs.String(strcase.ToKebab("body-"+name), defaultVal, prm.Value.Description)
 				default:
 				}
 			}
