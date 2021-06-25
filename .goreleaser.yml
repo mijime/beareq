@@ -3,20 +3,25 @@ before:
   hooks:
     - go mod tidy
     - go generate ./...
-    - go mod vendor
-
 builds:
-  - goos:
-      - linux
-      - darwin
-      - windows
-    env:
+  - env:
       - CGO_ENABLED=0
-      - GOFLAGS=-mod=vendor
-    main: ./cmd/merje
-    ldflags:
-      - -s -w -X main.version={{ .Version }}
-
+    goos:
+      - linux
+      - windows
+      - darwin
+    id: beareq
+    main: ./cmd/beareq/
+    binary: beareq
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    id: beareq-oapi
+    main: ./cmd/beareq-oapi/
+    binary: beareq-oapi
 archives:
   - replacements:
       darwin: Darwin
@@ -24,15 +29,14 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
-
 checksum:
   name_template: "checksums.txt"
-
 snapshot:
   name_template: "{{ .Tag }}-next"
-
 changelog:
   sort: asc
   filters:
     exclude:
-      - "^Merge pull request"
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
