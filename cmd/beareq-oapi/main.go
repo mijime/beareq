@@ -92,7 +92,8 @@ func main() {
 			var d int
 
 			if len(cmdName) > len(args[0]) {
-				d = levenshtein.ComputeDistance(args[0], cmdName[:len(args[0])])*10 + levenshtein.ComputeDistance(args[0], cmdName[len(args[0]):])
+				d = levenshtein.ComputeDistance(args[0], cmdName[:len(args[0])])*10 +
+					levenshtein.ComputeDistance(args[0], cmdName[len(args[0]):])
 			} else {
 				d = levenshtein.ComputeDistance(args[0], cmdName) * 10
 			}
@@ -113,6 +114,7 @@ func main() {
 		}
 
 		fmt.Fprintf(os.Stderr, "unsupported subcommand %s: the more similar command is\n", args[0])
+
 		for _, cmdName := range cmdNames[:viewSize] {
 			fmt.Fprintf(os.Stderr, "\t- %s\n", cmdName.n)
 		}

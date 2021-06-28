@@ -49,7 +49,7 @@ func (b *ClientBuilder) fetchConfigByProfile() (*oauth2.Config, error) {
 	if errors.Is(err, os.ErrNotExist) {
 		log.Println("not found oauth config:", err)
 
-		return &oauth2.Config{}, nil
+		return nil, nil
 	}
 
 	if err != nil {
@@ -58,27 +58,17 @@ func (b *ClientBuilder) fetchConfigByProfile() (*oauth2.Config, error) {
 
 	defer confp.Close()
 
-	config := make(map[string]oauth2.Config)
+	config := make(map[string]*oauth2.Config)
 	if err := toml.NewDecoder(confp).Decode(&config); err != nil {
 		return nil, fmt.Errorf("failed to decode oauth config: %w", err)
 	}
 
-	c := config[b.Profile]
+	c, ok := config[b.Profile]
+	if !ok {
+		return nil, nil
+	}
 
-	return &c, nil
-}
-
-type profileClient struct {
-	client *http.Client
-	closer func() error
-}
-
-func (c *profileClient) Client() *http.Client {
-	return c.client
-}
-
-func (c *profileClient) Close() error {
-	return c.closer()
+	return c, nil
 }
 
 func (b *ClientBuilder) BuildClient(ctx context.Context) (beareq.Client, error) {
@@ -87,23 +77,26 @@ func (b *ClientBuilder) BuildClient(ctx context.Context) (beareq.Client, error) 
 		return nil, err
 	}
 
-	tok, err := b.fetchToken(config)
-	if err != nil {
-		return nil, err
+	if config != nil {
+		tok, err := b.fetchToken(config)
+		if err != nil {
+			return nil, err
+		}
+
+		tokSrc := config.TokenSource(ctx, tok)
+		cli := oauth2.NewClient(ctx, tokSrc)
+
+		return &profileClient{
+			client:  cli,
+			builder: b,
+			source:  tokSrc,
+		}, nil
 	}
 
-	tokSrc := config.TokenSource(ctx, tok)
-	cli := oauth2.NewClient(ctx, tokSrc)
-
-	return &profileClient{
-		client: cli,
-		closer: func() error {
-			return b.saveToken(tokSrc)
-		},
-	}, nil
+	return http.DefaultClient, nil
 }
 
-func (b ClientBuilder) saveToken(tokSrc oauth2.TokenSource) error {
+func (b *ClientBuilder) saveToken(tokSrc oauth2.TokenSource) error {
 	if err := os.MkdirAll(b.TokenDir, 0o700); err != nil {
 		return fmt.Errorf("failed to create token dir: %w", err)
 	}
@@ -127,7 +120,7 @@ func (b ClientBuilder) saveToken(tokSrc oauth2.TokenSource) error {
 	return nil
 }
 
-func (b ClientBuilder) fetchToken(config *oauth2.Config) (*oauth2.Token, error) {
+func (b *ClientBuilder) fetchToken(config *oauth2.Config) (*oauth2.Token, error) {
 	tokenPath := path.Join(b.TokenDir, b.Profile+".json")
 
 	tokfp, err := os.Open(tokenPath)
@@ -145,6 +138,26 @@ func (b ClientBuilder) fetchToken(config *oauth2.Config) (*oauth2.Token, error) 
 	}
 
 	return tok, nil
+}
+
+type profileClient struct {
+	client *http.Client
+
+	builder *ClientBuilder
+	source  oauth2.TokenSource
+}
+
+func (c *profileClient) Do(req *http.Request) (*http.Response, error) {
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to do request: %w", err)
+	}
+
+	return resp, nil
+}
+
+func (c *profileClient) Close() error {
+	return c.builder.saveToken(c.source)
 }
 
 var errInvalidAuthCodeURL = errors.New("invalid auth code url")

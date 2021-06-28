@@ -8,8 +8,7 @@ import (
 )
 
 type Client interface {
-	Client() *http.Client
-	io.Closer
+	Do(req *http.Request) (*http.Response, error)
 }
 
 type ClientBuilder interface {
@@ -30,7 +29,9 @@ func Run(ctx context.Context, cb ClientBuilder, rb RequestBuilder, rh ResponseHa
 		return fmt.Errorf("failed to build client: %w", err)
 	}
 
-	defer client.Close()
+	if closer, ok := client.(io.Closer); ok {
+		defer closer.Close()
+	}
 
 	for _, u := range urls {
 		err := func(u string) error {
@@ -39,7 +40,7 @@ func Run(ctx context.Context, cb ClientBuilder, rb RequestBuilder, rh ResponseHa
 				return fmt.Errorf("failed to build request: %w", err)
 			}
 
-			resp, err := client.Client().Do(req)
+			resp, err := client.Do(req)
 			if err != nil {
 				return fmt.Errorf("failed to request: %w", err)
 			}
