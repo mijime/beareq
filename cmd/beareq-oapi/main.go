@@ -164,7 +164,10 @@ func fetchConfigByProfile(b profileConfig) (openapiConfig, error) {
 		return openapiConfig{}, fmt.Errorf("failed to decode openapi config: %w", err)
 	}
 
-	c := config[b.Profile]
+	c, ok := config[b.Profile]
+	if !ok {
+		return openapiConfig{}, fmt.Errorf("not found profile in profiles.toml: %s", b.Profile)
+	}
 
 	return c, nil
 }
