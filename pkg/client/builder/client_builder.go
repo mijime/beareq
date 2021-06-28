@@ -44,28 +44,32 @@ func NewClientBuilder() *ClientBuilder {
 	}
 }
 
-func (b *ClientBuilder) fetchConfigByProfile() (*oauth2.Config, error) {
+type profileConfig struct {
+	OAuth *oauth2.Config
+}
+
+func (b *ClientBuilder) fetchConfigByProfile() (profileConfig, error) {
 	confp, err := os.Open(b.ProfilesPath)
 	if errors.Is(err, os.ErrNotExist) {
 		log.Println("not found oauth config:", err)
 
-		return nil, nil
+		return profileConfig{}, nil
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to open oauth config: %w", err)
+		return profileConfig{}, fmt.Errorf("failed to open oauth config: %w", err)
 	}
 
 	defer confp.Close()
 
-	config := make(map[string]*oauth2.Config)
+	config := make(map[string]profileConfig)
 	if err := toml.NewDecoder(confp).Decode(&config); err != nil {
-		return nil, fmt.Errorf("failed to decode oauth config: %w", err)
+		return profileConfig{}, fmt.Errorf("failed to decode oauth config: %w", err)
 	}
 
 	c, ok := config[b.Profile]
 	if !ok {
-		return nil, nil
+		return profileConfig{}, nil
 	}
 
 	return c, nil
@@ -77,13 +81,13 @@ func (b *ClientBuilder) BuildClient(ctx context.Context) (beareq.Client, error) 
 		return nil, err
 	}
 
-	if config != nil {
-		tok, err := b.fetchToken(config)
+	if config.OAuth != nil {
+		tok, err := b.fetchToken(config.OAuth)
 		if err != nil {
 			return nil, err
 		}
 
-		tokSrc := config.TokenSource(ctx, tok)
+		tokSrc := config.OAuth.TokenSource(ctx, tok)
 		cli := oauth2.NewClient(ctx, tokSrc)
 
 		return &profileClient{
