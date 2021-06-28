@@ -45,7 +45,8 @@ func NewClientBuilder() *ClientBuilder {
 }
 
 type profileConfig struct {
-	OAuth *oauth2.Config
+	OAuth  *oauth2.Config
+	Header map[string][]string
 }
 
 func (b *ClientBuilder) fetchConfigByProfile() (profileConfig, error) {
@@ -75,6 +76,23 @@ func (b *ClientBuilder) fetchConfigByProfile() (profileConfig, error) {
 	return c, nil
 }
 
+type headerOverride map[string][]string
+
+func (r headerOverride) RoundTrip(req *http.Request) (*http.Response, error) {
+	for k, vs := range r {
+		for _, v := range vs {
+			req.Header.Add(k, v)
+		}
+	}
+
+	resp, err := http.DefaultTransport.RoundTrip(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to default round trip: %w", err)
+	}
+
+	return resp, nil
+}
+
 func (b *ClientBuilder) BuildClient(ctx context.Context) (beareq.Client, error) {
 	config, err := b.fetchConfigByProfile()
 	if err != nil {
@@ -95,6 +113,10 @@ func (b *ClientBuilder) BuildClient(ctx context.Context) (beareq.Client, error) 
 			builder: b,
 			source:  tokSrc,
 		}, nil
+	}
+
+	if config.Header != nil {
+		return &http.Client{Transport: headerOverride(config.Header)}, nil
 	}
 
 	return http.DefaultClient, nil

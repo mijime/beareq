@@ -29,6 +29,12 @@ TokenURL = "https://slack.com/api/oauth.access"
 [[slack.OpenAPI]] # OPTIONAL
 BaseURL = "https://api.slack.com/api" # OPTIONAL
 Specs = ["/Users/xxx/.config/beareq/specs/slack.json"]
+
+[notion]
+
+[notion.Header]
+Notion-Version = ["2021-05-13"]
+Authorization = ["Bearer secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"]
 ```
 
 ## Usage
