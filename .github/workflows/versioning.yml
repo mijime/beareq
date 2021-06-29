@@ -26,10 +26,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - uses: goreleaser/goreleaser-action@v1
+      - uses: goreleaser/goreleaser-action@v2
         if: steps.semantic.outputs.new_release_published == 'true'
         with:
           version: latest
           args: release --rm-dist
+          workdir: v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
