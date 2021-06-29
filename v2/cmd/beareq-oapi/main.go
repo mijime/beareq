@@ -10,10 +10,10 @@ import (
 	"sort"
 
 	"github.com/agnivade/levenshtein"
-	"github.com/mijime/beareq/pkg/beareq"
-	cbuilder "github.com/mijime/beareq/pkg/client/builder"
-	"github.com/mijime/beareq/pkg/openapi"
-	"github.com/mijime/beareq/pkg/response/handler"
+	"github.com/mijime/beareq/v2/pkg/beareq"
+	cbuilder "github.com/mijime/beareq/v2/pkg/client/builder"
+	"github.com/mijime/beareq/v2/pkg/openapi"
+	"github.com/mijime/beareq/v2/pkg/response/handler"
 	"github.com/pelletier/go-toml"
 )
 

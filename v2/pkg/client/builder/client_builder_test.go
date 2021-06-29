@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mijime/beareq/pkg/beareq"
+	"github.com/mijime/beareq/v2/pkg/beareq"
 	"golang.org/x/oauth2"
 )
 

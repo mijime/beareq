@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/mijime/beareq/pkg/request/attrs"
+	"github.com/mijime/beareq/v2/pkg/request/attrs"
 )
 
 type RequestBuilder struct {
