@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mijime/beareq/pkg/request/attrs"
+	"github.com/mijime/beareq/v2/pkg/request/attrs"
 )
 
 func TestNewRequestBuilder(t *testing.T) {

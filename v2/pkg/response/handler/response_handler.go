@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/mijime/beareq/pkg/response/attrs"
-	"github.com/mijime/beareq/pkg/response/handler/jq"
-	"github.com/mijime/beareq/pkg/response/handler/raw"
+	"github.com/mijime/beareq/v2/pkg/response/attrs"
+	"github.com/mijime/beareq/v2/pkg/response/handler/jq"
+	"github.com/mijime/beareq/v2/pkg/response/handler/raw"
 )
 
 type ResponseHandler struct {

@@ -1,12 +1,9 @@
-
-build: dist/beareq
-
-dist/beareq:
-	go build -o $@ ./...
+install:
+	go install -v ./cmd/...
 
 update:
 	go get -u -d -v ./...
-	go mod tidy
+	go mod tidy -v
 
 test:
 	go vet ./...

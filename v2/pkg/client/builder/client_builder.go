@@ -12,7 +12,7 @@ import (
 	"path"
 
 	"github.com/google/uuid"
-	"github.com/mijime/beareq/pkg/beareq"
+	"github.com/mijime/beareq/v2/pkg/beareq"
 	"github.com/pelletier/go-toml"
 	"github.com/toqueteos/webbrowser"
 	"golang.org/x/oauth2"

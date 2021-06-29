@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mijime/beareq/pkg/response/attrs"
+	"github.com/mijime/beareq/v2/pkg/response/attrs"
 )
 
 func TestNewResponseHandler(t *testing.T) {

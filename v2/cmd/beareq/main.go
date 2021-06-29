@@ -5,10 +5,10 @@ import (
 	"flag"
 	"log"
 
-	"github.com/mijime/beareq/pkg/beareq"
-	cbuilder "github.com/mijime/beareq/pkg/client/builder"
-	rbuilder "github.com/mijime/beareq/pkg/request/builder"
-	"github.com/mijime/beareq/pkg/response/handler"
+	"github.com/mijime/beareq/v2/pkg/beareq"
+	cbuilder "github.com/mijime/beareq/v2/pkg/client/builder"
+	rbuilder "github.com/mijime/beareq/v2/pkg/request/builder"
+	"github.com/mijime/beareq/v2/pkg/response/handler"
 )
 
 func main() {
