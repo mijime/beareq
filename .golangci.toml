@@ -10,8 +10,14 @@ disable = [
   "interfacer",
 
   "exhaustivestruct",
-  "gomnd",
   "goerr113",
+  "gochecknoglobals",
+  "gomnd",
+
+  "cyclop",
+  "funlen",
+  "gocognit",
+  "gocyclo",
 ]
 
 [linters-settings.gocognit]
