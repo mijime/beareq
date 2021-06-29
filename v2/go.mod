@@ -1,4 +1,4 @@
-module github.com/mijime/beareq
+module github.com/mijime/beareq/v2
 
 go 1.16
 
