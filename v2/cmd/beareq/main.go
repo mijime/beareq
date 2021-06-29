@@ -16,6 +16,7 @@ func main() {
 	flag.StringVar(&cb.Profile, "profile", cb.Profile, "")
 	flag.StringVar(&cb.ProfilesPath, "profiles", cb.ProfilesPath, "")
 	flag.StringVar(&cb.TokenDir, "tokens", cb.TokenDir, "")
+	flag.BoolVar(&cb.RefreshToken, "refresh-token", cb.RefreshToken, "")
 
 	rb := rbuilder.NewRequestBuilder()
 	flag.Var(&rb.Method, "request", "Specify request command to use")

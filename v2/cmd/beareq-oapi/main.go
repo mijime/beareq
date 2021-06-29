@@ -22,6 +22,7 @@ func main() {
 	flag.StringVar(&cb.Profile, "profile", cb.Profile, "")
 	flag.StringVar(&cb.ProfilesPath, "profiles", cb.ProfilesPath, "")
 	flag.StringVar(&cb.TokenDir, "tokens", cb.TokenDir, "")
+	flag.BoolVar(&cb.RefreshToken, "refresh-token", cb.RefreshToken, "")
 
 	rh := handler.NewResponseHandler()
 	flag.Var(&rh.JSONQuery, "jq", "")
