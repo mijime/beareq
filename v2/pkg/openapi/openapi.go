@@ -192,8 +192,8 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 	return req, nil
 }
 
-func GenerateOperation(baseURL string, specPath string) (map[string]*Operation, error) {
-	uri, err := url.Parse(specPath)
+func GenerateOperationFromPath(baseURL string, path string) (map[string]*Operation, error) {
+	uri, err := url.Parse(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse spec path: %w", err)
 	}
@@ -205,6 +205,21 @@ func GenerateOperation(baseURL string, specPath string) (map[string]*Operation, 
 		return nil, fmt.Errorf("failed to load openapi v3: %w", err)
 	}
 
+	return generateOperation(baseURL, doc3)
+}
+
+func GenerateOperationFromData(baseURL string, data []byte) (map[string]*Operation, error) {
+	loader3 := openapi3.NewLoader()
+
+	doc3, err := loader3.LoadFromData(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load openapi v3: %w", err)
+	}
+
+	return generateOperation(baseURL, doc3)
+}
+
+func generateOperation(baseURL string, doc3 *openapi3.T) (map[string]*Operation, error) {
 	for _, v := range doc3.Servers {
 		if len(baseURL) == 0 {
 			baseURL = v.URL
