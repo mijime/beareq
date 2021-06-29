@@ -25,6 +25,7 @@ type ClientBuilder struct {
 	Profile      string
 	ProfilesPath string
 	TokenDir     string
+	RefreshToken bool
 }
 
 func osGetEnv(key string, defaultValue string) string {
@@ -153,7 +154,7 @@ func (b *ClientBuilder) fetchToken(config *oauth2.Config) (*oauth2.Token, error)
 	tokenPath := path.Join(b.TokenDir, b.Profile+".json")
 
 	tokfp, err := os.Open(tokenPath)
-	if errors.Is(err, os.ErrNotExist) {
+	if b.RefreshToken || errors.Is(err, os.ErrNotExist) {
 		return generateToken(config)
 	}
 
