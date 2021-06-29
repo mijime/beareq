@@ -9,16 +9,16 @@ import (
 	"os"
 	"sort"
 
-	"github.com/agnivade/levenshtein"
 	"github.com/mijime/beareq/v2/pkg/beareq"
-	cbuilder "github.com/mijime/beareq/v2/pkg/client/builder"
+	"github.com/mijime/beareq/v2/pkg/client/builder"
 	"github.com/mijime/beareq/v2/pkg/openapi"
 	"github.com/mijime/beareq/v2/pkg/response/handler"
+	"github.com/mijime/beareq/v2/pkg/suggest"
 	"github.com/pelletier/go-toml"
 )
 
 func main() {
-	cb := cbuilder.NewClientBuilder()
+	cb := builder.NewClientBuilder()
 	flag.StringVar(&cb.Profile, "profile", cb.Profile, "")
 	flag.StringVar(&cb.ProfilesPath, "profiles", cb.ProfilesPath, "")
 	flag.StringVar(&cb.TokenDir, "tokens", cb.TokenDir, "")
@@ -83,40 +83,18 @@ func main() {
 
 	cmd, ok := cmds[args[0]]
 	if !ok {
-		cmdNames := make([]struct {
-			n string
-			d int
-		}, 0, len(cmds))
-
-		for cmdName := range cmds {
-			var d int
-
-			if len(cmdName) > len(args[0]) {
-				d = levenshtein.ComputeDistance(args[0], cmdName[:len(args[0])])*10 +
-					levenshtein.ComputeDistance(args[0], cmdName[len(args[0]):])
-			} else {
-				d = levenshtein.ComputeDistance(args[0], cmdName) * 10
-			}
-
-			cmdNames = append(cmdNames, struct {
-				n string
-				d int
-			}{n: cmdName, d: d})
-		}
-
-		sort.Slice(cmdNames, func(i, j int) bool {
-			return cmdNames[i].d < cmdNames[j].d
-		})
-
-		viewSize := len(cmdNames)
-		if viewSize > 5 {
-			viewSize = 5
-		}
-
 		fmt.Fprintf(os.Stderr, "unsupported subcommand %s: the more similar command is\n", args[0])
 
-		for _, cmdName := range cmdNames[:viewSize] {
-			fmt.Fprintf(os.Stderr, "\t- %s\n", cmdName.n)
+		cmdNames := make([]string, 0, len(cmds))
+
+		for cmdName := range cmds {
+			cmdNames = append(cmdNames, cmdName)
+		}
+
+		suggestCmdNames := suggest.Suggest(cmdNames, args[0], 10)
+
+		for _, cmdName := range suggestCmdNames {
+			fmt.Fprintf(os.Stderr, "\t- %s\n", cmdName)
 		}
 
 		os.Exit(1)

@@ -174,6 +174,7 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 
 	if requestBody == nil && len(formData) > 0 {
 		header.Add("Content-Type", "application/x-www-form-urlencoded")
+
 		requestBody = strings.NewReader(formData.Encode())
 	}
 
