@@ -172,6 +172,11 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 		}
 	}
 
+	if requestBody == nil && len(formData) > 0 {
+		header.Add("Content-Type", "application/x-www-form-urlencoded")
+		requestBody = strings.NewReader(formData.Encode())
+	}
+
 	req, err := http.NewRequestWithContext(ctx, op.Method, baseURI+path, requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -179,10 +184,6 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 
 	if len(header) > 0 {
 		req.Header = header
-	}
-
-	if len(formData) > 0 {
-		req.PostForm = formData
 	}
 
 	if len(query) > 0 {

@@ -3,7 +3,9 @@ package openapi
 import (
 	"context"
 	"net/http"
+	"net/http/httputil"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -124,7 +126,40 @@ func TestOperation_BuildRequest(t *testing.T) {
 		want    *http.Request
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			fields: fields{
+				Method: http.MethodPost,
+				Operation: &openapi3.Operation{
+					Parameters: openapi3.Parameters{
+						{
+							Value: &openapi3.Parameter{
+								In:   "formData",
+								Name: "title",
+								Schema: &openapi3.SchemaRef{
+									Value: &openapi3.Schema{
+										Type: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+				args: map[string]map[string]*string{
+					"formData": {
+						"title": func(t string) *string { return &t }("hello"),
+					},
+				},
+			},
+			args: args{
+				ctx:     context.TODO(),
+				baseURI: "http://localhost:3000",
+			},
+			want: func() *http.Request {
+				req, _ := http.NewRequest(http.MethodPost, "http://localhost:3000", strings.NewReader("title=hello"))
+				req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+				return req
+			}(),
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -142,8 +177,10 @@ func TestOperation_BuildRequest(t *testing.T) {
 				t.Errorf("Operation.BuildRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Operation.BuildRequest() = %v, want %v", got, tt.want)
+			gotDump, _ := httputil.DumpRequest(got, true)
+			wantDump, _ := httputil.DumpRequest(tt.want, true)
+			if !reflect.DeepEqual(gotDump, wantDump) {
+				t.Errorf("Operation.BuildRequest() = %s, want %s", gotDump, wantDump)
 			}
 		})
 	}
