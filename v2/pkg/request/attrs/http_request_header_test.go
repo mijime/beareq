@@ -14,7 +14,9 @@ func TestNewHTTPHeader(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewHTTPHeader(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewHTTPHeader() = %v, want %v", got, tt.want)
 			}
@@ -34,7 +36,9 @@ func TestHTTPHeader_String(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			h := &HTTPHeader{
 				Values: tt.fields.Values,
 			}
@@ -61,7 +65,9 @@ func TestHTTPHeader_Set(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			h := &HTTPHeader{
 				Values: tt.fields.Values,
 			}

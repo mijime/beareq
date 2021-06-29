@@ -15,7 +15,9 @@ func TestNewJSONQuery(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewJSONQuery(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewJSONQuery() = %v, want %v", got, tt.want)
 			}
@@ -35,7 +37,9 @@ func TestJSONQuery_Exists(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			q := &JSONQuery{
 				Query: tt.fields.Query,
 			}
@@ -58,7 +62,9 @@ func TestJSONQuery_String(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			q := &JSONQuery{
 				Query: tt.fields.Query,
 			}
@@ -85,7 +91,9 @@ func TestJSONQuery_Set(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			q := &JSONQuery{
 				Query: tt.fields.Query,
 			}

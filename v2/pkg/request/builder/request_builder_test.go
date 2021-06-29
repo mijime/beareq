@@ -2,7 +2,6 @@ package builder
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"reflect"
 	"testing"
@@ -18,44 +17,11 @@ func TestNewRequestBuilder(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewRequestBuilder(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewRequestBuilder() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestRequestBuilder_body(t *testing.T) {
-	type fields struct {
-		Method     attrs.HTTPRequestMethod
-		Data       attrs.HTTPBody
-		Header     attrs.HTTPHeader
-		JSONObject attrs.JSONObject
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		want    io.Reader
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			b := RequestBuilder{
-				Method:     tt.fields.Method,
-				Data:       tt.fields.Data,
-				Header:     tt.fields.Header,
-				JSONObject: tt.fields.JSONObject,
-			}
-			got, err := b.body()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("RequestBuilder.body() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("RequestBuilder.body() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -82,7 +48,9 @@ func TestRequestBuilder_BuildRequest(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			b := RequestBuilder{
 				Method:     tt.fields.Method,
 				Data:       tt.fields.Data,
