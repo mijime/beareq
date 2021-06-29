@@ -2,10 +2,13 @@ package builder
 
 import (
 	"context"
+	"crypto/tls"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -188,6 +191,13 @@ func (c *profileClient) Close() error {
 
 var errInvalidAuthCodeURL = errors.New("invalid auth code url")
 
+var (
+	//go:embed certs/tmp.key
+	keyPEM []byte
+	//go:embed certs/tmp.crt
+	certPEM []byte
+)
+
 func fetchCode(code chan<- string, config *oauth2.Config) error {
 	id := uuid.New()
 	state := fmt.Sprint(id)
@@ -232,9 +242,34 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 
 	addr := redirectURL.Hostname() + ":" + redirectURL.Port()
 
-	go func() {
-		err := http.ListenAndServe(addr, nil)
+	var listener net.Listener
+
+	switch redirectURL.Scheme {
+	case "https":
+		cert, err := tls.X509KeyPair(certPEM, keyPEM)
 		if err != nil {
+			return fmt.Errorf("failed to load x509 key pair: %w", err)
+		}
+
+		cfg := &tls.Config{
+			MinVersion:   tls.VersionTLS13,
+			Certificates: []tls.Certificate{cert},
+		}
+
+		listener, err = tls.Listen("tcp", addr, cfg)
+		if err != nil {
+			return fmt.Errorf("failed to listen: %w", err)
+		}
+
+	case "http":
+		listener, err = net.Listen("tcp", addr)
+		if err != nil {
+			return fmt.Errorf("failed to listen: %w", err)
+		}
+	}
+
+	go func() {
+		if err := http.Serve(listener, nil); err != nil {
 			log.Fatal(err)
 		}
 	}()

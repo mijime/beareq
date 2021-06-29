@@ -19,7 +19,7 @@ TokenURL = "https://www.googleapis.com/oauth2/v3/token"
 [slack.OAuth]
 ClientID = "000000000000.0000000000000"
 ClientSecret = "00000000000000000000000000000000"
-RedirectURL = "http://localhost:8999"
+RedirectURL = "https://localhost:8999"
 Scopes = ["chat:write:user", "chat:write:bot"]
 
 [slack.OAuth.Endpoint]
@@ -28,7 +28,7 @@ TokenURL = "https://slack.com/api/oauth.access"
 
 [[slack.OpenAPI]] # OPTIONAL
 BaseURL = "https://api.slack.com/api" # OPTIONAL
-Specs = ["/Users/xxx/.config/beareq/specs/slack.json"]
+Specs = ["https://raw.githubusercontent.com/slackapi/slack-api-specs/master/web-api/slack_web_openapi_v2_without_examples.json"]
 
 [notion]
 
