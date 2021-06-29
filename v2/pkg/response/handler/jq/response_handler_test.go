@@ -27,7 +27,9 @@ func TestResponseHandler_HandleResponse(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			h := &ResponseHandler{
 				Writer: tt.fields.Writer,
 				Query:  tt.fields.Query,

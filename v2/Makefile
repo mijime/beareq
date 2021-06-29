@@ -11,4 +11,4 @@ test:
 	golangci-lint run --fix ./...
 
 add_test:
-	git ls-files | grep '.*\.go$$' | grep -v "_test\.go$$" | while read -r f; do gotests -all $$f | grep -v "^Generated" > $${f%%.go}_test.go; done
+	git ls-files | grep '.*\.go$$' | grep -v "_test\.go$$" | while read -r f; do gotests -w -parallel -exported $$f; done

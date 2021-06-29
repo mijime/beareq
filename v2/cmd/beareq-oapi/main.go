@@ -50,7 +50,7 @@ func main() {
 
 	for _, oc := range config.OpenAPI {
 		for _, specPath := range oc.Specs {
-			subcmds, err := openapi.GenerateOperation(oc.BaseURL, specPath)
+			subcmds, err := openapi.GenerateOperationFromPath(oc.BaseURL, specPath)
 			if err != nil {
 				log.Fatal(fmt.Errorf("failed to generate openapi: %w", err))
 			}

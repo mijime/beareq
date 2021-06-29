@@ -14,7 +14,9 @@ func TestNewHTTPBody(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewHTTPBody(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewHTTPBody() = %v, want %v", got, tt.want)
 			}
@@ -34,7 +36,9 @@ func TestHTTPBody_Exists(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			b := &HTTPBody{
 				Reader: tt.fields.Reader,
 			}
@@ -57,7 +61,9 @@ func TestHTTPBody_String(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			b := &HTTPBody{
 				Reader: tt.fields.Reader,
 			}
@@ -84,7 +90,9 @@ func TestHTTPBody_Set(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			b := &HTTPBody{
 				Reader: tt.fields.Reader,
 			}

@@ -17,7 +17,9 @@ func TestNewResponseHandler(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewResponseHandler(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewResponseHandler() = %v, want %v", got, tt.want)
 			}
@@ -44,7 +46,9 @@ func TestResponseHandler_HandleResponse(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			h := ResponseHandler{
 				JSONQuery: tt.fields.JSONQuery,
 				Verbose:   tt.fields.Verbose,
@@ -53,40 +57,6 @@ func TestResponseHandler_HandleResponse(t *testing.T) {
 			if err := h.HandleResponse(tt.args.ctx, tt.args.resp); (err != nil) != tt.wantErr {
 				t.Errorf("ResponseHandler.HandleResponse() error = %v, wantErr %v", err, tt.wantErr)
 			}
-		})
-	}
-}
-
-func Test_dumpHeader(t *testing.T) {
-	type args struct {
-		h http.Header
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			dumpHeader(tt.args.h)
-		})
-	}
-}
-
-func Test_dumpResponse(t *testing.T) {
-	type args struct {
-		resp *http.Response
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			dumpResponse(tt.args.resp)
 		})
 	}
 }

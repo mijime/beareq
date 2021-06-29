@@ -13,7 +13,9 @@ func TestNewHTTPRequestMethod(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewHTTPRequestMethod(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewHTTPRequestMethod() = %v, want %v", got, tt.want)
 			}
@@ -33,7 +35,9 @@ func TestHTTPRequestMethod_Exists(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			a := &HTTPRequestMethod{
 				Method: tt.fields.Method,
 			}
@@ -56,7 +60,9 @@ func TestHTTPRequestMethod_String(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			a := &HTTPRequestMethod{
 				Method: tt.fields.Method,
 			}
@@ -83,7 +89,9 @@ func TestHTTPRequestMethod_Set(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			a := &HTTPRequestMethod{
 				Method: tt.fields.Method,
 			}

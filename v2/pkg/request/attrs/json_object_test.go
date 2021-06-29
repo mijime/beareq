@@ -14,7 +14,9 @@ func TestNewJSONObject(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := NewJSONObject(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewJSONObject() = %v, want %v", got, tt.want)
 			}
@@ -34,7 +36,9 @@ func TestJSONObject_String(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			x := &JSONObject{
 				Args: tt.fields.Args,
 			}
@@ -61,7 +65,9 @@ func TestJSONObject_Set(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			x := &JSONObject{
 				Args: tt.fields.Args,
 			}
@@ -84,7 +90,9 @@ func TestJSONObject_Exists(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			x := JSONObject{
 				Args: tt.fields.Args,
 			}
@@ -108,7 +116,9 @@ func TestJSONObject_Parse(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			x := JSONObject{
 				Args: tt.fields.Args,
 			}
