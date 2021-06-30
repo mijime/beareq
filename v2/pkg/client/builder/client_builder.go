@@ -253,7 +253,7 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 		}
 
 		cfg := &tls.Config{
-			MinVersion:   tls.VersionTLS13,
+			MinVersion:   tls.VersionTLS12,
 			Certificates: []tls.Certificate{cert},
 		}
 
