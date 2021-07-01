@@ -74,7 +74,7 @@ func (b *ClientBuilder) fetchConfigByProfile() (profileConfig, error) {
 
 	c, ok := config[b.Profile]
 	if !ok {
-		return profileConfig{}, nil
+		return profileConfig{}, fmt.Errorf("not found profile in profiles.toml: %s", b.Profile)
 	}
 
 	return c, nil
