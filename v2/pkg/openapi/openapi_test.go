@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"context"
+	"flag"
 	"net/http"
 	"net/http/httputil"
 	"reflect"
@@ -64,44 +65,6 @@ func TestOperation_Name(t *testing.T) {
 			}
 			if got := op.Name(); got != tt.want {
 				t.Errorf("Operation.Name() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestOperation_Parse(t *testing.T) {
-	type fields struct {
-		Operation *openapi3.Operation
-		BaseURL   string
-		Path      string
-		Method    string
-		args      map[string]map[string]*string
-	}
-	type args struct {
-		envPrefix string
-		args      []string
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			op := &Operation{
-				Operation: tt.fields.Operation,
-				BaseURL:   tt.fields.BaseURL,
-				Path:      tt.fields.Path,
-				Method:    tt.fields.Method,
-				args:      tt.fields.args,
-			}
-			if err := op.Parse(tt.args.envPrefix, tt.args.args); (err != nil) != tt.wantErr {
-				t.Errorf("Operation.Parse() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -239,6 +202,41 @@ func TestGenerateOperationFromData(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GenerateOperationFromData() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOperation_FlagSet(t *testing.T) {
+	type fields struct {
+		Operation *openapi3.Operation
+		BaseURL   string
+		Path      string
+		Method    string
+		args      map[string]map[string]*string
+	}
+	type args struct {
+		envPrefix string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *flag.FlagSet
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			op := &Operation{
+				Operation: tt.fields.Operation,
+				BaseURL:   tt.fields.BaseURL,
+				Path:      tt.fields.Path,
+				Method:    tt.fields.Method,
+				args:      tt.fields.args,
+			}
+			if got := op.FlagSet(tt.args.envPrefix); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Operation.FlagSet() = %v, want %v", got, tt.want)
 			}
 		})
 	}
