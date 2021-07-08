@@ -25,6 +25,8 @@ func (h *ResponseHandler) HandleResponse(ctx context.Context, resp *http.Respons
 	}
 
 	enc := json.NewEncoder(h.Writer)
+	enc.SetIndent("", "  ")
+
 	iter := h.Query.RunWithContext(ctx, v)
 
 	for {
