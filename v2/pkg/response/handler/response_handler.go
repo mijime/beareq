@@ -47,6 +47,8 @@ func (h ResponseHandler) HandleResponse(ctx context.Context, resp *http.Response
 		if err := rh.HandleResponse(ctx, resp); err != nil {
 			return fmt.Errorf("failed to handle response: %w", err)
 		}
+
+		return nil
 	}
 
 	rh := &raw.ResponseHandler{
