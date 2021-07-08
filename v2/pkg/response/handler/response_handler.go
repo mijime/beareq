@@ -38,7 +38,7 @@ func (h ResponseHandler) HandleResponse(ctx context.Context, resp *http.Response
 		return fmt.Errorf("failed to request: %s", resp.Status)
 	}
 
-	if h.JSONQuery.Exists() {
+	if h.JSONQuery.Exists() && resp.StatusCode < http.StatusBadRequest {
 		rh := &jq.ResponseHandler{
 			Writer: os.Stdout,
 			Query:  h.JSONQuery.Query,
