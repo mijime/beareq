@@ -42,7 +42,7 @@ func (op *Operation) Name() string {
 	return op.OperationID
 }
 
-func (op *Operation) Parse(envPrefix string, args []string) error {
+func (op *Operation) FlagSet(envPrefix string) *flag.FlagSet {
 	fs := flag.NewFlagSet(op.Name(), flag.ExitOnError)
 
 	for _, prm := range op.Parameters {
@@ -94,11 +94,7 @@ func (op *Operation) Parse(envPrefix string, args []string) error {
 		}
 	}
 
-	if err := fs.Parse(args); err != nil {
-		return fmt.Errorf("failed to parse args: %w", err)
-	}
-
-	return nil
+	return fs
 }
 
 func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Request, error) {

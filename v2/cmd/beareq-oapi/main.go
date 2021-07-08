@@ -101,7 +101,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := cmd.Parse(envPrefix, args[1:]); err != nil {
+	cmdFs := cmd.FlagSet(envPrefix)
+	cmdFs.Var(&rh.JSONQuery, "jq", "")
+
+	if err := cmdFs.Parse(args[1:]); err != nil {
 		log.Fatal(err)
 	}
 
