@@ -72,6 +72,7 @@ func TestOperation_BuildRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			op := &Operation{
+				PathItem:  tt.fields.PathItem,
 				Operation: tt.fields.Operation,
 				BaseURL:   tt.fields.BaseURL,
 				Path:      tt.fields.Path,
@@ -98,6 +99,7 @@ func TestNewOperation(t *testing.T) {
 		path   string
 		method string
 		op     *openapi3.Operation
+		pi     *openapi3.PathItem
 	}
 	tests := []struct {
 		name string
@@ -110,7 +112,7 @@ func TestNewOperation(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := NewOperation(tt.args.url, tt.args.path, tt.args.method, tt.args.op); !reflect.DeepEqual(got, tt.want) {
+			if got := NewOperation(tt.args.url, tt.args.path, tt.args.method, tt.args.op, tt.args.pi); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewOperation() = %v, want %v", got, tt.want)
 			}
 		})
@@ -120,6 +122,7 @@ func TestNewOperation(t *testing.T) {
 func TestOperation_Name(t *testing.T) {
 	type fields struct {
 		Operation *openapi3.Operation
+		PathItem  *openapi3.PathItem
 		BaseURL   string
 		Path      string
 		Method    string
@@ -138,6 +141,7 @@ func TestOperation_Name(t *testing.T) {
 			t.Parallel()
 			op := &Operation{
 				Operation: tt.fields.Operation,
+				PathItem:  tt.fields.PathItem,
 				BaseURL:   tt.fields.BaseURL,
 				Path:      tt.fields.Path,
 				Method:    tt.fields.Method,
@@ -153,6 +157,7 @@ func TestOperation_Name(t *testing.T) {
 func TestOperation_FlagSet(t *testing.T) {
 	type fields struct {
 		Operation *openapi3.Operation
+		PathItem  *openapi3.PathItem
 		BaseURL   string
 		Path      string
 		Method    string
@@ -175,6 +180,7 @@ func TestOperation_FlagSet(t *testing.T) {
 			t.Parallel()
 			op := &Operation{
 				Operation: tt.fields.Operation,
+				PathItem:  tt.fields.PathItem,
 				BaseURL:   tt.fields.BaseURL,
 				Path:      tt.fields.Path,
 				Method:    tt.fields.Method,

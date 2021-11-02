@@ -21,6 +21,7 @@ import (
 
 type Operation struct {
 	*openapi3.Operation
+	PathItem *openapi3.PathItem
 
 	BaseURL string
 	Path    string
@@ -29,9 +30,10 @@ type Operation struct {
 	args map[string]map[string]flag.Value
 }
 
-func NewOperation(url, path, method string, op *openapi3.Operation) *Operation {
+func NewOperation(url, path, method string, op *openapi3.Operation, pi *openapi3.PathItem) *Operation {
 	return &Operation{
 		Operation: op,
+		PathItem:  pi,
 		BaseURL:   url,
 		Path:      path,
 		Method:    method,
@@ -47,7 +49,7 @@ func (op *Operation) Name() string {
 func (op *Operation) FlagSet(envPrefix string) *flag.FlagSet {
 	fs := flag.NewFlagSet(op.Name(), flag.ExitOnError)
 
-	for _, prm := range op.Parameters {
+	for _, prm := range append(op.PathItem.Parameters, op.Parameters...) {
 		if _, ok := op.args[prm.Value.In]; !ok {
 			op.args[prm.Value.In] = make(map[string]flag.Value)
 		}
@@ -211,7 +213,7 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 	header := make(http.Header)
 	formData := make(url.Values)
 
-	for _, prm := range op.Parameters {
+	for _, prm := range append(op.PathItem.Parameters, op.Parameters...) {
 		v, ok := op.args[prm.Value.In][prm.Value.Name]
 		if !ok {
 			continue
@@ -338,7 +340,7 @@ func generateOperation(baseURL string, doc3 *openapi3.T) (map[string]*Operation,
 
 	for path, pi := range doc3.Paths {
 		for method, op := range pi.Operations() {
-			cmd := NewOperation(baseURL, path, method, op)
+			cmd := NewOperation(baseURL, path, method, op, pi)
 			cmds[cmd.Name()] = cmd
 		}
 	}
