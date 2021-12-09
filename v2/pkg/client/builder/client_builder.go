@@ -104,7 +104,7 @@ func (b *ClientBuilder) BuildClient(ctx context.Context) (beareq.Client, error) 
 	}
 
 	if config.OAuth != nil {
-		tok, err := b.fetchToken(config.OAuth)
+		tok, err := b.fetchToken(ctx, config.OAuth)
 		if err != nil {
 			return nil, err
 		}
@@ -150,12 +150,12 @@ func (b *ClientBuilder) saveToken(tokSrc oauth2.TokenSource) error {
 	return nil
 }
 
-func (b *ClientBuilder) fetchToken(config *oauth2.Config) (*oauth2.Token, error) {
+func (b *ClientBuilder) fetchToken(ctx context.Context, config *oauth2.Config) (*oauth2.Token, error) {
 	tokenPath := path.Join(b.TokenDir, b.Profile+".json")
 
 	tokfp, err := os.Open(tokenPath)
 	if b.RefreshToken || errors.Is(err, os.ErrNotExist) {
-		return generateToken(config)
+		return generateToken(ctx, config)
 	}
 
 	if err != nil {
@@ -278,7 +278,7 @@ func fetchCode(code chan<- string, config *oauth2.Config) error {
 	return nil
 }
 
-func generateToken(config *oauth2.Config) (*oauth2.Token, error) {
+func generateToken(ctx context.Context, config *oauth2.Config) (*oauth2.Token, error) {
 	code := make(chan string, 1)
 
 	if err := fetchCode(code, config); err != nil {
@@ -286,8 +286,6 @@ func generateToken(config *oauth2.Config) (*oauth2.Token, error) {
 
 		return nil, err
 	}
-
-	ctx := context.Background()
 
 	tok, err := config.Exchange(ctx, <-code)
 	if err != nil {
