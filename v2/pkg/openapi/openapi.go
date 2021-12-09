@@ -58,6 +58,7 @@ func (op *Operation) FlagSet(envPrefix string) *flag.FlagSet {
 
 		globalEnv := strings.ToUpper(strcase.ToSnake(envPrefix + "_" + prm.Value.Name))
 		opEnv := strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + prm.Value.Name))
+
 		for _, v := range []string{os.Getenv(globalEnv), os.Getenv(opEnv)} {
 			if len(v) > 0 {
 				defaultVal = v
@@ -90,7 +91,12 @@ func (op *Operation) FlagSet(envPrefix string) *flag.FlagSet {
 	return fs
 }
 
-func (op *Operation) buildBodyArgs(fs *flag.FlagSet, ao *argObject, envPrefix, namePrefix string, schema *openapi3.Schema) {
+func (op *Operation) buildBodyArgs(
+	fs *flag.FlagSet,
+	ao *argObject,
+	envPrefix, namePrefix string,
+	schema *openapi3.Schema,
+) {
 	for name, prm := range schema.Properties {
 		var defaultVal string
 
