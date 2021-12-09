@@ -56,10 +56,9 @@ func (op *Operation) FlagSet(envPrefix string) *flag.FlagSet {
 
 		var defaultVal string
 
-		for _, v := range []string{
-			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + prm.Value.Name))),
-			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + prm.Value.Name))),
-		} {
+		globalEnv := strings.ToUpper(strcase.ToSnake(envPrefix + "_" + prm.Value.Name))
+		opEnv := strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + prm.Value.Name))
+		for _, v := range []string{os.Getenv(globalEnv), os.Getenv(opEnv)} {
 			if len(v) > 0 {
 				defaultVal = v
 			}
@@ -72,7 +71,11 @@ func (op *Operation) FlagSet(envPrefix string) *flag.FlagSet {
 			log.Printf("[WARN] failed to set default value: %s = %v", argName, err)
 		}
 
-		fs.Var(op.args[prm.Value.In][prm.Value.Name], argName, prm.Value.Description)
+		fs.Var(
+			op.args[prm.Value.In][prm.Value.Name],
+			argName,
+			prm.Value.Description+"\n[ENV: "+globalEnv+", "+opEnv+"]",
+		)
 	}
 
 	if op.RequestBody != nil {
