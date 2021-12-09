@@ -100,16 +100,17 @@ func (op *Operation) buildBodyArgs(
 	for name, prm := range schema.Properties {
 		var defaultVal string
 
-		for _, v := range []string{
-			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + namePrefix + name))),
-			os.Getenv(strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + namePrefix + name))),
-		} {
+		globalEnv := strings.ToUpper(strcase.ToSnake(envPrefix + "_" + namePrefix + name))
+		opEnv := strings.ToUpper(strcase.ToSnake(envPrefix + "_" + op.Name() + "_" + namePrefix + name))
+
+		for _, v := range []string{os.Getenv(globalEnv), os.Getenv(opEnv)} {
 			if len(v) > 0 {
 				defaultVal = v
 			}
 		}
 
 		argName := strcase.ToKebab(namePrefix + name)
+		desc := prm.Value.Description + "\n[ENV: " + globalEnv + ", " + opEnv + "]"
 
 		switch prm.Value.Type {
 		case "integer":
@@ -119,7 +120,7 @@ func (op *Operation) buildBodyArgs(
 				log.Printf("[WARN] failed to set default value: %s = %v", argName, err)
 			}
 
-			fs.Var(ao.V[namePrefix+name], argName, prm.Value.Description)
+			fs.Var(ao.V[namePrefix+name], argName, desc)
 		case "number":
 			ao.V[namePrefix+name] = &argFloat{}
 
@@ -127,7 +128,7 @@ func (op *Operation) buildBodyArgs(
 				log.Printf("[WARN] failed to set default value: %s = %v", argName, err)
 			}
 
-			fs.Var(ao.V[namePrefix+name], argName, prm.Value.Description)
+			fs.Var(ao.V[namePrefix+name], argName, desc)
 		case "boolean":
 			ao.V[namePrefix+name] = &argBoolean{}
 
@@ -135,7 +136,7 @@ func (op *Operation) buildBodyArgs(
 				log.Printf("[WARN] failed to set default value: %s = %v", argName, err)
 			}
 
-			fs.Var(ao.V[namePrefix+name], argName, prm.Value.Description)
+			fs.Var(ao.V[namePrefix+name], argName, desc)
 		case "string":
 			ao.V[namePrefix+name] = &argString{}
 
@@ -143,7 +144,7 @@ func (op *Operation) buildBodyArgs(
 				log.Printf("[WARN] failed to set default value: %s = %v", argName, err)
 			}
 
-			fs.Var(ao.V[namePrefix+name], argName, prm.Value.Description)
+			fs.Var(ao.V[namePrefix+name], argName, desc)
 		case "array":
 			ao.V[namePrefix+name] = &argArray{V: make([]string, 0)}
 
@@ -151,7 +152,7 @@ func (op *Operation) buildBodyArgs(
 				log.Printf("[WARN] failed to set default value: %s = %v", argName, err)
 			}
 
-			fs.Var(ao.V[namePrefix+name], argName, prm.Value.Description)
+			fs.Var(ao.V[namePrefix+name], argName, desc)
 		case "object":
 			cao := &argObject{V: make(map[string]flag.Value)}
 			ao.V[namePrefix+name] = cao
