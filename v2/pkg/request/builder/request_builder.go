@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/mijime/beareq/v2/pkg/request/attrs"
 )
@@ -14,6 +15,7 @@ type RequestBuilder struct {
 	Data       attrs.HTTPBody
 	Header     attrs.HTTPHeader
 	JSONObject attrs.JSONObject
+	Verbose    bool
 }
 
 func NewRequestBuilder() RequestBuilder {
@@ -22,6 +24,7 @@ func NewRequestBuilder() RequestBuilder {
 		Header:     attrs.NewHTTPHeader(),
 		Data:       attrs.NewHTTPBody(),
 		JSONObject: attrs.NewJSONObject(),
+		Verbose:    false,
 	}
 }
 
@@ -46,6 +49,10 @@ func (b RequestBuilder) BuildRequest(ctx context.Context, url string) (*http.Req
 	body, err := b.body()
 	if err != nil {
 		return nil, err
+	}
+
+	if body != nil && b.Verbose {
+		body = io.TeeReader(body, os.Stderr)
 	}
 
 	var method string

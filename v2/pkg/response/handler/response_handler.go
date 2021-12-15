@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/mijime/beareq/v2/pkg/response/attrs"
 	"github.com/mijime/beareq/v2/pkg/response/handler/jq"
@@ -20,11 +19,9 @@ type ResponseHandler struct {
 }
 
 func NewResponseHandler() ResponseHandler {
-	verbose, _ := strconv.ParseBool(os.Getenv("BEAREQ_VERBOSE"))
-
 	return ResponseHandler{
 		JSONQuery: attrs.NewJSONQuery(),
-		Verbose:   verbose,
+		Verbose:   false,
 		Fail:      false,
 	}
 }
