@@ -368,11 +368,16 @@ func (a *argInteger) String() string {
 }
 
 func (a *argInteger) Set(v string) error {
+	if len(v) == 0 {
+		return nil
+	}
+
 	tv, err := strconv.Atoi(v)
 	if err != nil {
 		return fmt.Errorf("failed to set integer: %w", err)
 	}
 
+	a.IsSet = true
 	a.V = tv
 
 	return nil
