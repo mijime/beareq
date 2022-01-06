@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/mijime/beareq/v2/pkg/beareq"
 	cbuilder "github.com/mijime/beareq/v2/pkg/client/builder"
@@ -29,10 +31,16 @@ func main() {
 
 	rh := handler.NewResponseHandler()
 	flag.Var(&rh.JSONQuery, "jq", "")
-	flag.BoolVar(&rh.Verbose, "verbose", rh.Verbose, "")
 	flag.BoolVar(&rh.Fail, "fail", rh.Fail, "Fail silently (no output at all) on HTTP errors")
 
+	verbose, _ := strconv.ParseBool(os.Getenv("BEAREQ_VERBOSE"))
+
+	flag.BoolVar(&verbose, "verbose", verbose, "")
+
 	flag.Parse()
+
+	rb.Verbose = verbose
+	rh.Verbose = verbose
 
 	ctx := context.Background()
 

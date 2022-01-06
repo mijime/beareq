@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 
 	"github.com/mijime/beareq/v2/pkg/beareq"
 	"github.com/mijime/beareq/v2/pkg/client/builder"
@@ -26,8 +27,11 @@ func main() {
 
 	rh := handler.NewResponseHandler()
 	flag.Var(&rh.JSONQuery, "jq", "")
-	flag.BoolVar(&rh.Verbose, "verbose", rh.Verbose, "")
 	flag.BoolVar(&rh.Fail, "fail", rh.Fail, "Fail silently (no output at all) on HTTP errors")
+
+	verbose, _ := strconv.ParseBool(os.Getenv("BEAREQ_VERBOSE"))
+
+	flag.BoolVar(&verbose, "verbose", verbose, "")
 
 	var envPrefix string
 
@@ -103,10 +107,14 @@ func main() {
 
 	cmdFs := cmd.FlagSet(envPrefix)
 	cmdFs.Var(&rh.JSONQuery, "jq", "")
+	cmdFs.BoolVar(&verbose, "verbose", verbose, "")
 
 	if err := cmdFs.Parse(args[1:]); err != nil {
 		log.Fatal(err)
 	}
+
+	rh.Verbose = verbose
+	cmd.Verbose = verbose
 
 	ctx := context.Background()
 

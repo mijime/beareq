@@ -28,6 +28,8 @@ type Operation struct {
 	Method  string
 
 	args map[string]map[string]flag.Value
+
+	Verbose bool
 }
 
 func NewOperation(url, path, method string, op *openapi3.Operation, pi *openapi3.PathItem) *Operation {
@@ -294,6 +296,10 @@ func (op *Operation) BuildRequest(ctx context.Context, baseURI string) (*http.Re
 		header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 		requestBody = strings.NewReader(formData.Encode())
+	}
+
+	if requestBody != nil && op.Verbose {
+		requestBody = io.TeeReader(requestBody, os.Stderr)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, op.Method, baseURI+path, requestBody)
