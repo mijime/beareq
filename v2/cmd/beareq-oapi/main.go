@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/mijime/beareq/v2/pkg/beareq"
 	"github.com/mijime/beareq/v2/pkg/client/builder"
@@ -52,9 +54,12 @@ func main() {
 	}
 
 	cmds := make(map[string]*openapi.Operation)
+	usr, _ := user.Current()
 
 	for _, oc := range config.OpenAPI {
 		for _, specPath := range oc.Specs {
+			specPath = strings.Replace(specPath, "~", usr.HomeDir, 1)
+
 			subcmds, err := openapi.GenerateOperationFromPath(oc.BaseURL, specPath)
 			if err != nil {
 				log.Fatal(fmt.Errorf("failed to generate openapi: %w", err))
