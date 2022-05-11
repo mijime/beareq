@@ -2,6 +2,7 @@ package attrs
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -41,9 +42,13 @@ func (x JSONObject) Exists() bool {
 }
 
 func (x JSONObject) Parse() (io.Reader, error) {
-	buf := bytes.NewBuffer([]byte{})
+	m, err := gojo.Map(x.Args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create buffer use gojo: %w", err)
+	}
 
-	if err := gojo.New(gojo.Output(buf), gojo.Args(x.Args)).Run(); err != nil {
+	buf := bytes.NewBuffer([]byte{})
+	if err := json.NewEncoder(buf).Encode(m); err != nil {
 		return nil, fmt.Errorf("failed to create buffer use gojo: %w", err)
 	}
 
